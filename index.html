@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activar Cooperación — Fundación Grupo EPM</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{font-family:'Inter',sans-serif;background:#f0f4f0;color:#111;min-height:100vh;font-size:14px;line-height:1.5}
+:root{
+  --g1:#006633;--g2:#008542;--g3:#00a653;--g4:#e6f4ec;--g5:#f0faf4;
+  --bl:#1a3f7a;--bl2:#e8eef8;
+  --am:#b8660a;--am2:#fef3e0;
+  --rd:#b03020;--rd2:#fdf0ed;
+  --gr:#6b7a6b;--gr2:#f4f6f4;--gr3:#e8ece8;
+  --wh:#ffffff;
+  --border:#d8e0d8;--border2:#eaf0ea;
+  --shadow:0 1px 3px rgba(0,80,40,.07),0 4px 12px rgba(0,80,40,.05);
+  --shadow2:0 2px 8px rgba(0,80,40,.1),0 8px 24px rgba(0,80,40,.07);
+  --r6:6px;--r10:10px;--r14:14px;--r20:20px;
+}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#b8ceb8;border-radius:3px}
+/* ── Layout ── */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:240px;flex-shrink:0;background:var(--g1);display:flex;flex-direction:column;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--wh);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.page-body{flex:1;overflow-y:auto;padding:24px;background:var(--gr2)}
+/* ── Sidebar ── */
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-logomark{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-name{font-size:12px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.3}
+.sb-sub{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:.5px;margin-top:1px}
+.sb-version{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:12px;display:inline-block;margin-top:8px}
+.sb-section{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.25);padding:12px 16px 6px}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;transition:all .15s;border:none;background:transparent;width:100%;text-align:left;font-family:'Inter',sans-serif;border-radius:0;position:relative}
+.sb-item:hover{background:rgba(255,255,255,.07)}
+.sb-item.active{background:rgba(255,255,255,.13);border-right:3px solid #5dda8a}
+.sb-item.active .sb-ico{color:#5dda8a}.sb-item.active .sb-lbl{color:#fff}
+.sb-ico{font-size:15px;width:20px;text-align:center;color:rgba(255,255,255,.35);flex-shrink:0}
+.sb-lbl{font-size:12.5px;color:rgba(255,255,255,.55);font-weight:500}
+.sb-cnt{background:var(--g3);color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto}
+.sb-tag{background:rgba(255,255,255,.15);color:rgba(255,255,255,.65);font-size:8px;font-weight:700;padding:1px 5px;border-radius:5px;margin-left:auto;letter-spacing:.3px}
+.sb-sep{height:1px;background:rgba(255,255,255,.07);margin:6px 0}
+.sb-bottom{padding:12px 14px;border-top:1px solid rgba(255,255,255,.07);margin-top:auto}
+.sb-bottom p{font-size:9px;color:rgba(255,255,255,.22);line-height:1.6}
+/* ── Topbar ── */
+.tb-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#111;letter-spacing:-.2px}
+.tb-sub{font-size:11px;color:var(--gr);margin-left:6px}
+.tb-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r6);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:none;white-space:nowrap;letter-spacing:-.1px}
+.btn-primary{background:var(--g2);color:#fff;box-shadow:0 1px 4px rgba(0,133,66,.3)}.btn-primary:hover{background:var(--g1);transform:translateY(-1px)}
+.btn-secondary{background:var(--wh);color:var(--g1);border:1.5px solid var(--g2)}.btn-secondary:hover{background:var(--g4)}
+.btn-ghost{background:transparent;color:var(--gr);border:1px solid var(--border)}.btn-ghost:hover{background:var(--gr3)}
+.btn-danger{background:var(--rd2);color:var(--rd);border:1px solid #e8b0a0}.btn-danger:hover{background:#fbe0db}
+.btn-sm{padding:6px 11px;font-size:12px}
+.btn-lg{padding:11px 22px;font-size:14px}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+/* ── Cards ── */
+.card{background:var(--wh);border:1px solid var(--border);border-radius:var(--r14);padding:20px 22px;box-shadow:var(--shadow)}
+.card-sm{padding:14px 16px}
+.card-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#111;margin-bottom:4px;letter-spacing:-.2px}
+.card-desc{font-size:12.5px;color:var(--gr);line-height:1.65;margin-bottom:14px}
+/* ── Section label ── */
+.slabel{font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#aaa;padding-bottom:8px;border-bottom:1px solid var(--border2);margin-bottom:12px}
+/* ── Grid ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.span2{grid-column:span 2}
+/* ── Stat cards ── */
+.stat-card{background:var(--wh);border:1px solid var(--border);border-radius:var(--r10);padding:16px 18px;box-shadow:var(--shadow)}
+.stat-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#111;line-height:1}
+.stat-lbl{font-size:11px;color:var(--gr);margin-top:5px;font-weight:500}
+.stat-ico{font-size:22px;margin-bottom:8px}
+/* ── Forms ── */
+.fg{margin-bottom:14px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.flabel{font-size:11.5px;font-weight:600;color:#444;margin-bottom:4px;display:block}
+.fhint{font-size:10.5px;color:#aaa;margin-top:3px;line-height:1.5}
+.fwhy{font-size:11px;color:var(--g1);margin-top:4px;padding:5px 9px;background:var(--g4);border-radius:5px;line-height:1.5;border-left:2px solid var(--g2)}
+input[type=text],input[type=number],input[type=date],select,textarea{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--r6);font-family:'Inter',sans-serif;font-size:13px;color:#111;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(0,133,66,.09)}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer}
+input[type=checkbox]{width:15px;height:15px;accent-color:var(--g2);cursor:pointer;flex-shrink:0}
+/* ── Badges ── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-g{background:var(--g4);color:var(--g1)}.badge-a{background:var(--am2);color:var(--am)}.badge-r{background:var(--rd2);color:var(--rd)}.badge-b{background:var(--bl2);color:var(--bl)}.badge-n{background:var(--gr3);color:var(--gr)}
+/* ── Alerts ── */
+.alert{padding:10px 13px;border-radius:var(--r6);margin-bottom:8px;font-size:12.5px;line-height:1.6;display:flex;gap:8px;align-items:flex-start}
+.alert-g{background:var(--g4);border-left:3px solid var(--g2);color:var(--g1)}
+.alert-a{background:var(--am2);border-left:3px solid var(--am);color:#6b3a04}
+.alert-r{background:var(--rd2);border-left:3px solid var(--rd);color:#6b1a10}
+.alert-b{background:var(--bl2);border-left:3px solid var(--bl);color:#0e2d5a}
+.alert-n{background:var(--gr3);border-left:3px solid var(--border);color:var(--gr)}
+.alert-icon{flex-shrink:0;margin-top:1px}
+/* ── Sug cards ── */
+.sug{padding:11px 13px;border-radius:var(--r6);border-left:3px solid;margin-bottom:6px;transition:transform .12s}
+.sug:hover{transform:translateX(2px)}
+.sug-hi{background:var(--rd2);border-color:var(--rd)}
+.sug-me{background:var(--am2);border-color:var(--am)}
+.sug-lo{background:var(--g4);border-color:var(--g2)}
+.sug-tag{font-size:8.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;opacity:.7;display:block;margin-bottom:2px}
+.sug-text{font-size:12.5px;line-height:1.6;color:#333}
+/* ── Table ── */
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{padding:8px 12px;text-align:left;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;border-bottom:2px solid var(--border);background:#fafcfa}
+.dt td{padding:10px 12px;border-bottom:1px solid var(--border2);color:#333;vertical-align:middle;line-height:1.5}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:#f8faf8}
+/* ── Tabs ── */
+.tabs{display:flex;border-bottom:2px solid var(--border2);overflow-x:auto;background:var(--wh)}
+.tab{padding:10px 16px;font-size:12.5px;font-weight:600;color:#999;cursor:pointer;border-bottom:3px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Inter',sans-serif;white-space:nowrap}
+.tab.on{color:var(--g2);border-bottom-color:var(--g2)}
+.tab:hover:not(.on){color:#333}
+/* ── Progress bar ── */
+.pbar{background:var(--border2);height:6px;border-radius:6px;overflow:hidden;margin:8px 0}
+.pfill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g3));border-radius:6px;transition:width .4s ease}
+/* ── Step nav ── */
+.step-nav{display:flex;align-items:center;gap:6px;background:var(--wh);border:1px solid var(--border);border-radius:var(--r10);padding:12px 16px;margin-bottom:18px;overflow-x:auto}
+.step-dot{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:50px;cursor:pointer}
+.step-c{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .2s;flex-shrink:0}
+.sc-done{background:var(--g2);color:#fff}
+.sc-active{background:var(--g1);color:#fff;box-shadow:0 0 0 3px rgba(0,133,66,.2)}
+.sc-pend{background:var(--gr3);color:#999;border:1.5px solid var(--border)}
+.step-n{font-size:10px;font-weight:600;color:#999;white-space:nowrap;text-align:center}
+.step-n.on{color:var(--g1)}
+.step-line{height:2px;background:var(--border);flex:1;min-width:14px}
+.step-line.done{background:var(--g2)}
+/* ── Project card ── */
+.proj-card{background:var(--wh);border:1px solid var(--border);border-radius:var(--r14);padding:16px 18px;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.proj-card:hover{border-color:var(--g2);box-shadow:var(--shadow2);transform:translateX(2px)}
+.proj-indicator{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+/* ── Semáforo ── */
+.sem{width:12px;height:12px;border-radius:50%;display:inline-block;flex-shrink:0}
+.sem-g{background:#22c55e}.sem-a{background:#f59e0b}.sem-r{background:#ef4444}.sem-k{background:#d1d5db}
+/* ── Vacancy panel ── */
+.vac-item{background:var(--wh);border:1px solid var(--border);border-radius:var(--r10);overflow:hidden;margin-bottom:6px}
+.vac-head{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#fafcfa;cursor:pointer;transition:background .15s}
+.vac-head:hover{background:var(--g5)}
+.vac-body{padding:11px 13px;border-top:1px solid var(--border2);display:none}
+.vac-item.open .vac-body{display:block}
+/* ── Diag row ── */
+.diag-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:var(--r6);background:var(--gr3);border:1px solid var(--border2);margin-bottom:5px;transition:all .15s}
+.diag-row:hover{border-color:var(--g3);background:var(--g5)}
+.diag-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+/* ── TdC chain ── */
+.tdc-wrap{overflow-x:auto;padding-bottom:8px}
+.tdc-chain{display:flex;align-items:stretch;min-width:680px}
+.tdc-node{flex:1;background:#fafcfa;border:1px solid var(--border);border-radius:var(--r10);padding:12px 10px;min-width:120px}
+.tdc-node.tdc-impact{background:var(--g1);border-color:var(--g1)}
+.tdc-node.tdc-result{background:var(--g4);border-color:rgba(0,133,66,.25)}
+.tdc-arrow{display:flex;align-items:center;padding:0 6px;color:var(--g2);font-size:18px;flex-shrink:0}
+.tdc-label{font-size:8.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:#aaa;margin-bottom:7px}
+.tdc-node.tdc-impact .tdc-label{color:rgba(255,255,255,.5)}
+.tdc-node.tdc-result .tdc-label{color:var(--g1)}
+.tdc-item{font-size:11px;color:#444;padding:3px 0;border-bottom:1px solid var(--border2);line-height:1.5}
+.tdc-item:last-child{border-bottom:none}
+.tdc-node.tdc-impact .tdc-item{color:rgba(255,255,255,.85);border-color:rgba(255,255,255,.1);font-style:italic}
+/* ── Callout ── */
+.callout{background:var(--g4);border:1px solid rgba(0,133,66,.2);border-radius:var(--r6);padding:11px 14px;margin-bottom:12px}
+.callout p{font-size:12.5px;color:var(--g1);line-height:1.65}
+/* ── Concept card ── */
+.cc{background:var(--wh);border:1px solid var(--border);border-radius:var(--r14);padding:16px 18px;transition:all .18s}
+.cc:hover{box-shadow:var(--shadow);border-color:var(--g3)}
+.cc-ico{width:38px;height:38px;background:var(--g4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:11px}
+.cc-title{font-size:13.5px;font-weight:700;color:#111;margin-bottom:4px}
+.cc-desc{font-size:12px;color:var(--gr);line-height:1.6;margin-bottom:8px}
+.cc-cta{font-size:11px;color:var(--g1);padding:4px 8px;background:var(--g4);border-radius:5px;line-height:1.5;border-left:2px solid var(--g2)}
+/* ── PR042 ── */
+.pr042-box{background:linear-gradient(135deg,#f9f7f2,#f2ede0);border:2px dashed #c8b880;border-radius:var(--r20);padding:40px 32px;text-align:center}
+/* ── Hero block ── */
+.hero{background:linear-gradient(135deg,var(--g1) 0%,#004d2a 60%,#003d22 100%);border-radius:var(--r20);padding:30px 32px;position:relative;overflow:hidden;margin-bottom:20px}
+.hero::before{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;background:radial-gradient(circle,rgba(0,166,83,.18),transparent 70%);border-radius:50%;pointer-events:none}
+.hero-ey{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:7px}
+.hero-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:10px;letter-spacing:-.4px}
+.hero-title em{font-style:italic;color:rgba(160,255,190,.9);font-weight:600}
+.hero-desc{font-size:13px;color:rgba(255,255,255,.58);line-height:1.75;max-width:500px;margin-bottom:18px}
+.hero-tag{display:inline-block;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.72);padding:4px 11px;border-radius:20px;font-size:10.5px;font-weight:500;margin:2px}
+.hero-metric{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:12px 14px;text-align:center}
+.hero-metric-v{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.hero-metric-l{font-size:10px;color:rgba(255,255,255,.45);margin-top:3px;line-height:1.4}
+/* ── Door card ── */
+.door{background:var(--wh);border:1.5px solid var(--border);border-radius:var(--r20);padding:18px;cursor:pointer;transition:all .2s;text-align:left;width:100%}
+.door:hover{border-color:var(--g2);box-shadow:var(--shadow2);transform:translateY(-2px)}
+.door-ico{width:42px;height:42px;background:var(--g4);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:12px}
+.door-title{font-family:'Syne',sans-serif;font-size:13.5px;font-weight:700;color:#111;margin-bottom:4px}
+.door-desc{font-size:12px;color:var(--gr);line-height:1.6}
+.door-tag{display:inline-block;margin-top:10px;font-size:10px;font-weight:700;color:var(--g1);background:var(--g4);padding:3px 9px;border-radius:10px}
+/* ── Loading spinner ── */
+.spin{display:inline-block;width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rota .7s linear infinite}
+.spin-g{border-color:var(--g4);border-top-color:var(--g2)}
+@keyframes rota{to{transform:rotate(360deg)}}
+/* ── Misc ── */
+.disc{background:var(--gr3);border:1px solid var(--border);border-radius:var(--r6);padding:10px 13px;display:flex;gap:8px;align-items:flex-start;margin-top:18px}
+.disc p{font-size:11px;color:var(--gr);line-height:1.6}
+.empty-state{text-align:center;padding:50px 30px;color:#bbb}
+.empty-icon{font-size:40px;margin-bottom:14px;opacity:.5}
+.empty-title{font-size:15px;font-weight:600;color:#999;margin-bottom:8px}
+.tag-row{display:flex;gap:5px;flex-wrap:wrap}
+@media(max-width:768px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto}
+  .grid2,.grid3,.grid4,.frow{grid-template-columns:1fr}
+  .span2{grid-column:span 1}
+  .page-body{padding:14px}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useCallback,useRef}=React;
+
+/* ─── Storage ─────────────────────────────────────────────────────────────── */
+const LS_KEY="epm_coop_v5";
+const loadData=()=>{try{const s=localStorage.getItem(LS_KEY);return s?JSON.parse(s):null;}catch{return null;}};
+const saveData=(data)=>{try{localStorage.setItem(LS_KEY,JSON.stringify(data));}catch(e){console.warn("localStorage error",e);}};
+
+/* ─── Constants ───────────────────────────────────────────────────────────── */
+const LINEAS=[{id:"ambiental",l:"Gestión ambiental",i:"🌿"},{id:"social",l:"Gestión social",i:"🤝"},{id:"educacion",l:"Educación",i:"📚"},{id:"cultural",l:"Gestión cultural",i:"🎭"}];
+const MAD_LABELS=["","Idea inicial","Proyecto en ejecución","Estructurado","Potencial coop.","Listo para formulación"];
+const MAD_COLORS=["","#ef4444","#f59e0b","#3b82f6","#8b5cf6","#22c55e"];
+const EST_COOP=["Sin revisión","En revisión","Revisado","En formulación","Desestimado"];
+const EMPTY_PROJECT={id:null,nombre:"",area:"",linea:"",responsable:"",doorType:"existing",estado_mad:1,descripcion:"",problema:"",objetivo:"",actividades:"",territorio:"",poblacion:"",benef_dir:"",benef_ind:"",aliados:"",presupuesto:"",tieneTC:false,textoTC:"",tieneInd:false,indicadores:"",tieneEvi:false,evidencia:"",tieneLinea:false,lineaBase:"",audiovisual:false,materialEN:false,observaciones:"",estado_coop:0,createdAt:null,updatedAt:null,analysis:null,tcData:null};
+const EMPTY_ALLY={id:null,nombre:"",pais:"",tipo:"",interes:"",recursos:"",proyectoRel:"",fecha:"",responsable:"",siguiente:"",estado:"inicio"};
+const DIM_L={claridad_problema:"Claridad del problema",claridad_objetivo:"Claridad del objetivo",coherencia:"Coherencia lógica",poblacion:"Definición de población",territorio:"Claridad territorial",datos:"Existencia de datos",evidencia:"Evidencia de resultados",tdc:"Teoría del cambio",indicadores:"Indicadores definidos",linea_base:"Línea base disponible",impacto:"Medición de impacto",comunicacion:"Soporte comunicacional"};
+
+/* ─── AI ─────────────────────────────────────────────────────────────────── */
+async function aiAnalyze(p){
+  const linea=LINEAS.find(l=>l.id===p.linea)?.l||p.linea;
+  const prompt=`Eres especialista en cooperación internacional para la Fundación Grupo EPM. Analiza este proyecto. Usa lenguaje claro para no expertos.
+
+Nombre: ${p.nombre}|Línea: ${linea}|Área: ${p.area}|Responsable: ${p.responsable}
+Problema: ${p.problema}|Objetivo: ${p.objetivo}|Descripción: ${p.descripcion}
+Territorio: ${p.territorio}|Población: ${p.poblacion}
+Benef. directos: ${p.benef_dir}|Indirectos: ${p.benef_ind}
+Aliados: ${p.aliados}|Presupuesto: ${p.presupuesto}
+TdC: ${p.tieneTC?p.textoTC:"No cargada"}
+Indicadores: ${p.tieneInd?p.indicadores:"No cargados"}
+Evidencia: ${p.tieneEvi?p.evidencia:"No cargada"}
+Línea base: ${p.tieneLinea?p.lineaBase:"No cargada"}
+Audiovisual: ${p.audiovisual?"Sí":"No"}|Material inglés: ${p.materialEN?"Sí":"No"}
+Observaciones: ${p.observaciones}
+
+Responde SOLO JSON sin markdown:
+{"sintesis":"3 oraciones institucionales","lecturaEst":"Potencial y valor real para cooperación","nivelMad":1,"matrizAfirm":[{"afirmacion":"","ok":true,"nota":""}],"diag":{"claridad_problema":{"n":1,"txt":""},"claridad_objetivo":{"n":1,"txt":""},"coherencia":{"n":1,"txt":""},"poblacion":{"n":1,"txt":""},"territorio":{"n":1,"txt":""},"datos":{"n":1,"txt":""},"evidencia":{"n":1,"txt":""},"tdc":{"n":1,"txt":""},"indicadores":{"n":1,"txt":""},"linea_base":{"n":1,"txt":""},"impacto":{"n":1,"txt":""},"comunicacion":{"n":1,"txt":""}},"vacios":[{"cat":"Evidencia","tipo":"critico","titulo":"","desc":"","accion":"","quien":""}],"recAhora":[{"prioridad":"inmediata","accion":"","para_que":"","resp":""}],"infoRecopilar":[{"dim":"","queFalta":"","como":"","urgencia":"alta"}],"estadoTC":{"ok":false,"presentes":[],"faltantes":[],"rec":""},"estadoROI":{"cls":"no_estimable","msg":"","faltan":[]},"rutaCoop":{"cls":"requiere_revision","razon":"","alerta":""},"nivelPrep":1,"pasos":[{"n":1,"titulo":"","desc":"","area":""}]}
+
+nivelMad 1-5. nivelPrep 1-4. n dimensiones 1=débil,2=parcial,3=sólido. matrizAfirm 3-5. vacios 4-8. recAhora 4-7. infoRecopilar 3-5. pasos 4-6.`;
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3500,messages:[{role:"user",content:prompt}]})});
+  const d=await r.json();
+  return JSON.parse(d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+}
+
+async function aiTDC(project,answers){
+  const linea=LINEAS.find(l=>l.id===project.linea)?.l||project.linea;
+  const prompt=`Construye una MODELACIÓN PRELIMINAR de teoría del cambio para Fundación Grupo EPM. Usa SOLO información real. Escribe "[Información insuficiente]" donde falte. Es PRELIMINAR, requiere revisión por planeación.
+
+Proyecto: ${project.nombre}|Línea: ${linea}
+Problema: ${project.problema}|Objetivo: ${project.objetivo}
+Descripción: ${project.descripcion}|Población: ${project.poblacion}
+Actividades: ${project.actividades}|Evidencia: ${project.evidencia||"Ninguna"}
+
+Respuestas del equipo:
+${Object.entries(answers).map(([k,v])=>`${k}: ${v||"[Sin respuesta]"}`).join("\n")}
+
+JSON sin markdown:
+{"aviso":"MODELACIÓN PRELIMINAR. No constituye TdC final. Requiere revisión con planeación.","impacto":{"txt":"","ok":true,"notas":""},"sujeto":{"txt":"","ok":true},"resultados":[{"n":1,"txt":"","ok":true,"notas":""}],"productos":[{"n":1,"txt":"","ok":true}],"actividades":[{"bloque":"","items":[""]}],"supuestos":[""],"riesgos":[""],"indicadores":{"productos":[{"ind":"","unidad":""}],"impacto":{"ind":"","notas":""}},"calidad":{"nivel":1,"fortalezas":[""],"vacios":[""],"avisos":[""],"recs":[{"p":"alta","txt":""}]},"narrada":""}
+calidad.nivel 1=muy fragmentada,2=base incompleta,3=coherente con vacíos,4=sólida requiere validación.`;
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
+  const d=await r.json();
+  return JSON.parse(d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+}
+
+async function aiPerfil(project){
+  const prompt=`Genera un perfil de cooperación internacional para la Fundación Grupo EPM. Usa SOLO información real del proyecto. Lenguaje institucional técnico.
+
+Proyecto: ${project.nombre}|Área: ${project.area}|Línea: ${LINEAS.find(l=>l.id===project.linea)?.l||project.linea}
+Problema: ${project.problema}|Objetivo: ${project.objetivo}
+Descripción: ${project.descripcion}|Territorio: ${project.territorio}
+Población: ${project.poblacion}|Benef. directos: ${project.benef_dir}|Indirectos: ${project.benef_ind}
+Evidencia: ${project.evidencia||"No disponible"}|Presupuesto: ${project.presupuesto||"No disponible"}
+Indicadores: ${project.indicadores||"No definidos"}
+
+JSON sin markdown:
+{"resumenEjecutivo":"Párrafo de 4-5 oraciones técnicas e institucionales","descripcionTecnica":"Descripción técnica del proyecto para cooperantes (3-4 oraciones)","problema":"Enunciado técnico del problema en 2-3 oraciones","solucion":"Descripción de la solución propuesta en 2-3 oraciones","resultadosEsperados":["Resultado 1 concreto y verificable","Resultado 2","Resultado 3"],"ods":["ODS relevante 1 con meta","ODS relevante 2"],"fortalezas":["Fortaleza 1 del proyecto","Fortaleza 2"],"brechas":["Brecha 1 que limita la presentación a cooperación","Brecha 2"],"narrativaEN":"Executive summary in English (3-4 sentences, institutional language)"}`;
+  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+  const d=await r.json();
+  return JSON.parse(d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+}
+
+/* ─── UI Components ──────────────────────────────────────────────────────── */
+function MatBadge({n}){
+  const c=MAD_COLORS[n]||MAD_COLORS[1];
+  const l=MAD_LABELS[n]||"Sin estado";
+  return <span style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 9px",borderRadius:12,fontSize:11,fontWeight:700,background:c+"22",color:c,border:`1px solid ${c}44`}}>
+    <span style={{width:7,height:7,borderRadius:"50%",background:c}}/>
+    {l}
+  </span>;
+}
+function MatRing({n}){
+  const c=MAD_COLORS[n]||MAD_COLORS[1];
+  return <div style={{width:52,height:52,borderRadius:"50%",background:c+"18",border:`2.5px solid ${c}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+    <span style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,color:c}}>{n}</span>
+  </div>;
+}
+function DiagLevel({n}){
+  return n>=3?<span className="badge badge-g">Sólido</span>:n>=2?<span className="badge badge-a">Parcial</span>:n>=1?<span className="badge badge-r">Débil</span>:<span className="badge badge-n">Sin datos</span>;
+}
+
+/* ─── VIEWS ──────────────────────────────────────────────────────────────── */
+
+/* HOME */
+function HomeView({onNav,projects,allies}){
+  const analyzed=projects.filter(p=>p.analysis).length;
+  const byLinea=LINEAS.map(l=>({...l,cnt:projects.filter(p=>p.linea===l.id).length})).filter(l=>l.cnt>0);
+  return(
+    <div>
+      <div className="hero">
+        <div className="hero-ey">Fundación Grupo EPM · Sistema institucional de cooperación</div>
+        <h1 className="hero-title">Sistema de orientación y<br/><em>fortalecimiento de proyectos</em></h1>
+        <p className="hero-desc">Almacena, analiza y fortalece tus proyectos para cooperación internacional. Identifica vacíos, genera recomendaciones y prepara insumos de calidad.</p>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:18}}>
+          <button className="btn" style={{background:"#fff",color:"var(--g1)",fontWeight:700}} onClick={()=>onNav("banco")}>📁 Banco de proyectos</button>
+          <button className="btn" style={{background:"rgba(255,255,255,.12)",color:"#fff",border:"1px solid rgba(255,255,255,.2)"}} onClick={()=>onNav("lineamientos")}>Lineamientos →</button>
+        </div>
+        <div className="grid4">
+          {[{v:projects.length,l:"Proyectos registrados"},{v:analyzed,l:"Con análisis"},{v:allies.length,l:"Aliados registrados"},{v:projects.filter(p=>p.analysis&&p.analysis.nivelMad>=4).length,l:"Potencial cooperación"}].map((m,i)=>
+            <div key={i} className="hero-metric"><div className="hero-metric-v">{m.v}</div><div className="hero-metric-l">{m.l}</div></div>)}
+        </div>
+      </div>
+
+      <div className="alert alert-n" style={{marginBottom:16}}>
+        <span className="alert-icon">🧭</span>
+        <div><strong>¿Cómo usar esta herramienta?</strong> Registra tu proyecto → el sistema lo analiza → identifica vacíos → genera recomendaciones → te orienta hacia cooperación. Diseñado para equipos sin experiencia previa en cooperación internacional.</div>
+      </div>
+
+      <div className="slabel" style={{marginBottom:12}}>Módulos del sistema</div>
+      <div className="grid4" style={{marginBottom:20}}>
+        {[{i:"📁",n:"Banco de proyectos",d:"Registra y gestiona todos los proyectos con persistencia real.",v:"banco"},{i:"🔍",n:"Análisis y vacíos",d:"Diagnóstico en 12 dimensiones con semáforo institucional.",v:"banco"},{i:"💧",n:"Caso de referencia",d:"Programa Agua para la Educación — referente metodológico.",v:"caso"},{i:"📖",n:"Lineamientos",d:"Conceptos clave, tipos de cooperación y criterios de calidad.",v:"lineamientos"},{i:"🤝",n:"Aliados",d:"Registra y gestiona oportunidades con aliados internacionales.",v:"aliados"},{i:"📣",n:"Comunicación EN",d:"Qué materiales preparar para cooperantes internacionales.",v:"comunicacion"},{i:"🗣",n:"Voz del donante",d:"Cómo traducir tu proyecto al lenguaje del cooperante.",v:"voz"},{i:"🤖",n:"IA responsable",d:"Cómo usar este sistema de forma correcta y responsable.",v:"ia"}].map((f,i)=>
+          <div key={i} className="cc" style={{cursor:"pointer"}} onClick={()=>onNav(f.v)}>
+            <div className="cc-ico">{f.i}</div>
+            <div className="cc-title">{f.n}</div>
+            <div className="cc-desc">{f.d}</div>
+          </div>)}
+      </div>
+
+      {projects.length>0&&<div>
+        <div className="slabel" style={{marginBottom:10}}>Proyectos recientes</div>
+        {projects.slice(0,5).map(p=>(
+          <div key={p.id} className="proj-card" onClick={()=>onNav("detail",{id:p.id})}>
+            <div className="proj-indicator" style={{background:MAD_COLORS[p.analysis?.nivelMad||p.estado_mad]||"#d1d5db"}}/>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13.5,fontWeight:700,color:"#111"}}>{p.nombre||"Sin nombre"}</div>
+              <div style={{fontSize:11,color:"#999",marginTop:2}}>{LINEAS.find(l=>l.id===p.linea)?.l||"Sin línea"} · {p.area||"Sin área"}</div>
+            </div>
+            <MatBadge n={p.analysis?.nivelMad||p.estado_mad||1}/>
+          </div>))}
+      </div>}
+
+      {byLinea.length>0&&<div style={{marginTop:18}}>
+        <div className="slabel" style={{marginBottom:10}}>Distribución por línea</div>
+        <div className="grid4">
+          {byLinea.map((l,i)=><div key={i} className="stat-card"><div className="stat-ico">{l.i}</div><div className="stat-val">{l.cnt}</div><div className="stat-lbl">{l.l}</div></div>)}
+        </div>
+      </div>}
+
+      <div className="disc"><span>ⓘ</span><p>Sistema de orientación y fortalecimiento. No reemplaza el criterio técnico de cooperación, planeación, jurídica, finanzas ni comunicaciones. Toda decisión debe ser validada por los equipos responsables. Las salidas de IA son insumos preliminares.</p></div>
+    </div>
+  );
+}
+
+/* BANCO DE PROYECTOS */
+function BancoView({projects,onNav,onNew,onEdit,onDelete}){
+  const [filter,setFilter]=useState("todos");
+  const [q,setQ]=useState("");
+  const filtered=projects.filter(p=>{
+    const matchQ=!q||p.nombre.toLowerCase().includes(q.toLowerCase())||p.area.toLowerCase().includes(q.toLowerCase());
+    const matchF=filter==="todos"||(filter==="analizados"&&p.analysis)||(filter==="sin_analizar"&&!p.analysis)||(LINEAS.find(l=>l.id===filter));
+    const matchL=!LINEAS.find(l=>l.id===filter)||p.linea===filter;
+    return matchQ&&(filter==="todos"||(filter==="analizados"&&p.analysis)||(filter==="sin_analizar"&&!p.analysis)||matchL);
+  });
+  return(
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}}>
+        <div><div className="slabel" style={{marginBottom:2}}>Fundación Grupo EPM</div><div className="hero-title" style={{fontSize:22,background:"none",padding:0,color:"#111"}}>Banco de proyectos</div></div>
+        <button className="btn btn-primary" onClick={onNew}>+ Registrar proyecto</button>
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+        <input type="text" value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar proyecto..." style={{maxWidth:220}}/>
+        <select value={filter} onChange={e=>setFilter(e.target.value)} style={{maxWidth:200,width:"auto"}}>
+          <option value="todos">Todos ({projects.length})</option>
+          <option value="analizados">Con análisis</option>
+          <option value="sin_analizar">Sin análisis</option>
+          {LINEAS.map(l=><option key={l.id} value={l.id}>{l.i} {l.l}</option>)}
+        </select>
+        <div style={{marginLeft:"auto",fontSize:11.5,color:"#999",display:"flex",alignItems:"center"}}>{filtered.length} resultado{filtered.length!==1?"s":""}</div>
+      </div>
+      {filtered.length===0?(
+        <div className="empty-state">
+          <div className="empty-icon">📁</div>
+          <div className="empty-title">No hay proyectos registrados</div>
+          <div style={{fontSize:13,marginBottom:16}}>Registra tu primer proyecto para comenzar.</div>
+          <button className="btn btn-primary" onClick={onNew}>+ Registrar proyecto</button>
+        </div>
+      ):(
+        <div>
+          {filtered.map(p=>(
+            <div key={p.id} className="proj-card">
+              <div className="proj-indicator" style={{background:MAD_COLORS[p.analysis?.nivelMad||p.estado_mad]||"#d1d5db"}}/>
+              <div style={{flex:1,cursor:"pointer"}} onClick={()=>onNav("detail",{id:p.id})}>
+                <div style={{fontSize:14,fontWeight:700,color:"#111"}}>{p.nombre||"Sin nombre"}</div>
+                <div style={{fontSize:11,color:"#999",marginTop:2}}>{LINEAS.find(l=>l.id===p.linea)?.l||"Sin línea"} · {p.area||"Sin área"} {p.responsable?`· ${p.responsable}`:""}</div>
+                <div style={{fontSize:11,color:"#bbb",marginTop:1}}>{p.territorio||"Sin territorio"} · {new Date(p.createdAt||Date.now()).toLocaleDateString("es-CO")}</div>
+              </div>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                <MatBadge n={p.analysis?.nivelMad||p.estado_mad||1}/>
+                {p.analysis&&<span className="badge badge-g">✓ Analizado</span>}
+                <button className="btn btn-ghost btn-sm" onClick={e=>{e.stopPropagation();onEdit(p.id)}}>Editar</button>
+                <button className="btn btn-danger btn-sm" onClick={e=>{e.stopPropagation();if(window.confirm("¿Eliminar este proyecto?"))onDelete(p.id)}}>✕</button>
+              </div>
+            </div>))}
+        </div>)}
+    </div>
+  );
+}
+
+/* FORMULARIO PROYECTO */
+function ProjectForm({project,onSave,onBack,isNew}){
+  const [d,setD]=useState({...EMPTY_PROJECT,...project});
+  const [step,setStep]=useState(0);
+  const ch=(f,v)=>setD(p=>({...p,[f]:v}));
+  const STEPS=[{l:"Identificación"},{l:"Alcance"},{l:"Evidencia"},{l:"Revisión"}];
+  const ok=[
+    d.nombre.trim()&&d.linea&&d.descripcion.trim(),
+    d.territorio.trim()&&d.poblacion.trim(),
+    true,true
+  ];
+  const pct=Math.round(((step+1)/4)*100);
+  return(
+    <div>
+      <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:18}}>
+        <button className="btn btn-ghost btn-sm" onClick={onBack}>← Volver</button>
+        <div><div className="slabel" style={{marginBottom:1}}>{isNew?"Nuevo proyecto":"Editar proyecto"}</div>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:700}}>{d.nombre||"Sin nombre"}</div></div>
+      </div>
+      <div className="step-nav">
+        {STEPS.map((s,i)=>(
+          <React.Fragment key={i}>
+            <div className="step-dot" onClick={()=>i<=step&&setStep(i)}>
+              <div className={`step-c ${i<step?"sc-done":i===step?"sc-active":"sc-pend"}`}>{i<step?"✓":i+1}</div>
+              <div className={`step-n ${i===step?"on":""}`}>{s.l}</div>
+            </div>
+            {i<3&&<div className={`step-line ${i<step?"done":""}`}/>}
+          </React.Fragment>))}
+      </div>
+      <div className="pbar"><div className="pfill" style={{width:`${pct}%`}}/></div>
+
+      {step===0&&<div className="card">
+        <div className="card-title">Identificación del proyecto</div>
+        <div className="card-desc">Información básica. Carga lo que tienes, aunque sea incompleto.</div>
+        <div className="frow">
+          <div className="fg"><label className="flabel">Nombre del proyecto *</label><input type="text" value={d.nombre} onChange={e=>ch("nombre",e.target.value)} placeholder="Nombre descriptivo"/></div>
+          <div className="fg"><label className="flabel">Área responsable</label><input type="text" value={d.area} onChange={e=>ch("area",e.target.value)} placeholder="Ej: Agua, Educación..."/></div>
+        </div>
+        <div className="frow">
+          <div className="fg"><label className="flabel">Línea estratégica *</label><select value={d.linea} onChange={e=>ch("linea",e.target.value)}><option value="">Seleccione</option>{LINEAS.map(l=><option key={l.id} value={l.id}>{l.i} {l.l}</option>)}</select></div>
+          <div className="fg"><label className="flabel">Responsable técnico</label><input type="text" value={d.responsable} onChange={e=>ch("responsable",e.target.value)} placeholder="Nombre y cargo"/></div>
+        </div>
+        <div className="frow">
+          <div className="fg"><label className="flabel">Estado de madurez</label><select value={d.estado_mad} onChange={e=>ch("estado_mad",parseInt(e.target.value))}>{MAD_LABELS.slice(1).map((l,i)=><option key={i+1} value={i+1}>{l}</option>)}</select></div>
+          <div className="fg"><label className="flabel">Estado revisión cooperación</label><select value={d.estado_coop} onChange={e=>ch("estado_coop",parseInt(e.target.value))}>{EST_COOP.map((e,i)=><option key={i} value={i}>{e}</option>)}</select></div>
+        </div>
+        <div className="fg"><label className="flabel">Descripción general *</label><textarea value={d.descripcion} onChange={e=>ch("descripcion",e.target.value)} placeholder="¿Qué hace este proyecto? ¿Cuándo inició?"/></div>
+        <div className="fg"><label className="flabel">Problema que atiende</label><textarea value={d.problema} onChange={e=>ch("problema",e.target.value)} placeholder="¿Qué problema busca resolver?"/><div className="fwhy">💡 Describe el problema con datos: ¿a quién afecta?, ¿dónde?, ¿en qué magnitud?</div></div>
+        <div className="fg"><label className="flabel">Objetivo principal</label><textarea value={d.objetivo} onChange={e=>ch("objetivo",e.target.value)} placeholder="Inicia con un verbo en infinitivo."/></div>
+        <div className="fg"><label className="flabel">Actividades principales</label><textarea value={d.actividades} onChange={e=>ch("actividades",e.target.value)} placeholder="Lista las actividades clave del proyecto."/></div>
+        <div className="fg"><label className="flabel">Observaciones adicionales</label><textarea value={d.observaciones} onChange={e=>ch("observaciones",e.target.value)} placeholder="Contexto institucional, alianzas, restricciones, hitos importantes."/></div>
+      </div>}
+
+      {step===1&&<div className="card">
+        <div className="card-title">Alcance territorial y poblacional</div>
+        <div className="card-desc">La claridad territorial y poblacional es criterio básico para evaluadores internacionales.</div>
+        <div className="fg"><label className="flabel">Territorio de implementación *</label><textarea value={d.territorio} onChange={e=>ch("territorio",e.target.value)} placeholder="Municipios, veredas, barrios, regiones."/><div className="fwhy">💡 Sé específico: departamento, municipio, corregimiento o vereda.</div></div>
+        <div className="fg"><label className="flabel">Población objetivo *</label><textarea value={d.poblacion} onChange={e=>ch("poblacion",e.target.value)} placeholder="Características: edad, género, condición."/></div>
+        <div className="frow">
+          <div className="fg"><label className="flabel">Beneficiarios directos</label><input type="text" value={d.benef_dir} onChange={e=>ch("benef_dir",e.target.value)} placeholder="Ej: 312 docentes rurales"/><div className="fhint">Personas que participan directamente</div></div>
+          <div className="fg"><label className="flabel">Beneficiarios indirectos</label><input type="text" value={d.benef_ind} onChange={e=>ch("benef_ind",e.target.value)} placeholder="Ej: 87.000 estudiantes"/><div className="fhint">Personas beneficiadas indirectamente</div></div>
+        </div>
+        <div className="fg"><label className="flabel">Aliados y socios</label><textarea value={d.aliados} onChange={e=>ch("aliados",e.target.value)} placeholder="Organizaciones que trabajan con el proyecto y tipo de relación."/></div>
+        <div className="fg"><label className="flabel">Presupuesto estimado</label><input type="text" value={d.presupuesto} onChange={e=>ch("presupuesto",e.target.value)} placeholder="Ej: COP 480.000.000 / USD 120.000"/></div>
+      </div>}
+
+      {step===2&&<div className="card">
+        <div className="card-title">Evidencia, medición y soportes</div>
+        <div className="card-desc">La evidencia es el activo más valorado en cooperación internacional.</div>
+        {[{f:"tieneTC",l:"El proyecto tiene una teoría del cambio",campo:"textoTC",ph:"Describe los elementos que conoces: problema, actividades, resultados, impacto, supuestos."},
+          {f:"tieneInd",l:"El proyecto tiene indicadores definidos",campo:"indicadores",ph:"Lista los indicadores. Incluye tipo y meta si los conoces."},
+          {f:"tieneEvi",l:"Existe evidencia de resultados o cambios",campo:"evidencia",ph:"Datos de cobertura, cambios documentados, evaluaciones, informes."},
+          {f:"tieneLinea",l:"Existe una línea base o datos de partida",campo:"lineaBase",ph:"Qué se midió, cuándo, cómo y cuáles fueron los resultados de partida."}].map((item,i)=>(
+          <div key={i} style={{marginBottom:14}}>
+            {i>0&&<div style={{height:1,background:"var(--border2)",marginBottom:12}}/>}
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:7,cursor:"pointer"}} onClick={()=>ch(item.f,!d[item.f])}>
+              <input type="checkbox" checked={!!d[item.f]} onChange={e=>ch(item.f,e.target.checked)} onClick={e=>e.stopPropagation()}/>
+              <label style={{fontSize:13,fontWeight:600,cursor:"pointer"}}>{item.l}</label>
+            </div>
+            {d[item.f]&&<textarea value={d[item.campo]} onChange={e=>ch(item.campo,e.target.value)} placeholder={item.ph} style={{minHeight:70}}/>}
+          </div>))}
+        <div style={{height:1,background:"var(--border2)",marginBottom:12}}/>
+        <div className="frow">
+          <div style={{display:"flex",gap:8,alignItems:"center",cursor:"pointer"}} onClick={()=>ch("audiovisual",!d.audiovisual)}>
+            <input type="checkbox" checked={!!d.audiovisual} onChange={e=>ch("audiovisual",e.target.checked)} onClick={e=>e.stopPropagation()}/>
+            <label style={{fontSize:13,fontWeight:500,cursor:"pointer"}}>📸 Existe material audiovisual</label>
+          </div>
+          <div style={{display:"flex",gap:8,alignItems:"center",cursor:"pointer"}} onClick={()=>ch("materialEN",!d.materialEN)}>
+            <input type="checkbox" checked={!!d.materialEN} onChange={e=>ch("materialEN",e.target.checked)} onClick={e=>e.stopPropagation()}/>
+            <label style={{fontSize:13,fontWeight:500,cursor:"pointer"}}>🇬🇧 Existe material en inglés</label>
+          </div>
+        </div>
+      </div>}
+
+      {step===3&&<div className="card">
+        <div className="card-title">Revisión antes de guardar</div>
+        <div className="card-desc">Verifica la información. El sistema analizará el proyecto al guardarlo.</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:7,marginBottom:16}}>
+          {[{k:"Nombre",v:d.nombre},{k:"Línea",v:LINEAS.find(l=>l.id===d.linea)?.l},{k:"Área",v:d.area},{k:"Responsable",v:d.responsable},{k:"Territorio",v:d.territorio?.slice(0,45)+(d.territorio?.length>45?"…":"")},{k:"Población",v:d.poblacion?.slice(0,45)+(d.poblacion?.length>45?"…":"")},{k:"TdC",v:d.tieneTC?"✓ Cargada":"No cargada"},{k:"Evidencia",v:d.tieneEvi?"✓ Cargada":"No cargada"},{k:"Indicadores",v:d.tieneInd?"✓ Cargados":"No cargados"},{k:"Línea base",v:d.tieneLinea?"✓ Cargada":"No cargada"}].map(f=>(
+            <div key={f.k} style={{background:"#fafcfa",borderRadius:"var(--r6)",padding:"9px 12px",border:"1px solid var(--border2)"}}>
+              <div style={{fontSize:9.5,color:"#bbb",textTransform:"uppercase",letterSpacing:.8,marginBottom:2,fontWeight:700}}>{f.k}</div>
+              <div style={{fontSize:12.5,fontWeight:600,color:f.v?"#111":"#bbb"}}>{f.v||"No ingresado"}</div>
+            </div>))}
+        </div>
+        <div className="callout"><p>El análisis con IA puede tardar 20-40 segundos. Recibirás diagnóstico en 12 dimensiones, vacíos críticos, recomendaciones de acción y próximos pasos.</p></div>
+      </div>}
+
+      <div style={{display:"flex",justifyContent:"space-between",marginTop:16}}>
+        <button className="btn btn-ghost" onClick={()=>step>0?setStep(s=>s-1):onBack()}>{step===0?"← Cancelar":"← Anterior"}</button>
+        {step<3?<button className="btn btn-primary" onClick={()=>setStep(s=>s+1)} disabled={!ok[step]}>Siguiente →</button>:<button className="btn btn-primary btn-lg" onClick={()=>onSave({...d,updatedAt:new Date().toISOString()})}>Guardar y analizar →</button>}
+      </div>
+    </div>
+  );
+}
+
+/* DETALLE PROYECTO */
+function ProjectDetail({project,onBack,onEdit,onRefresh}){
+  const [tab,setTab]=useState(0);
+  const [showTDC,setShowTDC]=useState(false);
+  const [tdcAnswers,setTDCAnswers]=useState({});
+  const [buildingTDC,setBuildingTDC]=useState(false);
+  const [tdcResult,setTDCResult]=useState(project.tcData||null);
+  const [generatingPerfil,setGeneratingPerfil]=useState(false);
+  const [perfilResult,setPerfilResult]=useState(null);
+  const a=project.analysis;
+  const TABS=["Diagnóstico","Vacíos y acciones","Qué recopilar","TdC preliminar","Perfil cooperación","Próximos pasos"];
+  if(!project.nombre)return(<div><button className="btn btn-ghost btn-sm" onClick={onBack}>← Volver</button><div className="empty-state"><div className="empty-icon">⚠️</div><div className="empty-title">Proyecto no encontrado</div></div></div>);
+  return(
+    <div>
+      <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:16,gap:10,flexWrap:"wrap"}}>
+        <div>
+          <button className="btn btn-ghost btn-sm" onClick={onBack} style={{marginBottom:8}}>← Banco de proyectos</button>
+          <div style={{fontSize:9.5,fontWeight:700,letterSpacing:1.4,textTransform:"uppercase",color:"var(--g2)",marginBottom:2}}>{LINEAS.find(l=>l.id===project.linea)?.l||"Sin línea"}</div>
+          <div style={{fontFamily:"'Syne',sans-serif",fontSize:21,fontWeight:800,color:"#111",lineHeight:1.2,letterSpacing:"-.3px"}}>{project.nombre}</div>
+          <div style={{display:"flex",gap:6,marginTop:6,flexWrap:"wrap"}}>
+            <MatBadge n={a?.nivelMad||project.estado_mad||1}/>
+            {project.area&&<span className="badge badge-n">{project.area}</span>}
+            {project.responsable&&<span className="badge badge-n">{project.responsable}</span>}
+            <span className={`badge ${project.estado_coop>=2?"badge-g":project.estado_coop===1?"badge-a":"badge-n"}`}>{EST_COOP[project.estado_coop||0]}</span>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:7,alignItems:"center"}}>
+          {a&&<MatRing n={a.nivelPrep||1}/>}
+          <button className="btn btn-secondary btn-sm" onClick={onEdit}>✎ Editar</button>
+        </div>
+      </div>
+
+      {!a&&<div className="alert alert-a"><span className="alert-icon">⚠</span><div>Este proyecto no tiene análisis disponible. Edítalo y guarda para generar el diagnóstico completo.</div></div>}
+
+      {a&&<div style={{background:"var(--wh)",border:"1px solid var(--border)",borderRadius:"var(--r20)",overflow:"hidden",boxShadow:"var(--shadow)"}}>
+        <div className="tabs" style={{padding:"0 18px"}}>{TABS.map((t,i)=><button key={i} className={`tab ${tab===i?"on":""}`} onClick={()=>{setTab(i);setShowTDC(false)}}>{t}</button>)}</div>
+        <div style={{padding:"20px 20px"}}>
+
+          {tab===0&&<div>
+            <div className="grid2" style={{marginBottom:14}}>
+              <div className="card card-sm" style={{borderLeft:"4px solid var(--g2)"}}>
+                <div className="slabel">Síntesis institucional</div>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#333"}}>{a.sintesis}</p>
+              </div>
+              <div className="card card-sm">
+                <div className="slabel">Lectura estratégica</div>
+                <p style={{fontSize:13,lineHeight:1.8,color:"#333"}}>{a.lecturaEst}</p>
+              </div>
+            </div>
+            {a.matrizAfirm?.length>0&&<div style={{marginBottom:14,overflowX:"auto"}}>
+              <div className="slabel">Afirmaciones vs. evidencia</div>
+              <table className="dt"><thead><tr><th>Afirmación</th><th style={{width:80}}>¿Sustentada?</th><th>Nota</th></tr></thead>
+                <tbody>{a.matrizAfirm.map((r,i)=><tr key={i}><td>{r.afirmacion}</td><td><span className={`badge ${r.ok?"badge-g":"badge-r"}`}>{r.ok?"Sí":"No"}</span></td><td style={{fontSize:11.5,color:"#666"}}>{r.nota}</td></tr>)}</tbody>
+              </table>
+            </div>}
+            <div className="slabel">Diagnóstico en 12 dimensiones</div>
+            {Object.entries(a.diag||{}).map(([k,v])=>(
+              <div key={k} className="diag-row">
+                <div className="diag-dot" style={{background:v.n>=3?"#22c55e":v.n>=2?"#f59e0b":"#ef4444"}}/>
+                <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600}}>{DIM_L[k]||k}</div><div style={{fontSize:11.5,color:"#666",marginTop:1,lineHeight:1.5}}>{v.txt}</div></div>
+                <DiagLevel n={v.n}/>
+              </div>))}
+          </div>}
+
+          {tab===1&&<div>
+            <div className="slabel">Información faltante para cooperación internacional</div>
+            {(a.vacios||[]).map((v,i)=>(
+              <div key={i} className={`alert ${v.tipo==="critico"?"alert-r":v.tipo==="importante"?"alert-a":"alert-g"}`}>
+                <span className="alert-icon">{v.tipo==="critico"?"⚠":v.tipo==="importante"?"△":"○"}</span>
+                <div>
+                  <div style={{fontWeight:700,marginBottom:2}}><span style={{fontSize:9,fontWeight:700,background:"rgba(0,0,0,.08)",padding:"1px 5px",borderRadius:4,marginRight:5,letterSpacing:.5,textTransform:"uppercase"}}>{v.cat}</span>{v.titulo}</div>
+                  <div style={{fontSize:12}}>{v.desc}</div>
+                  {v.accion&&<div style={{fontSize:11,marginTop:4,padding:"3px 7px",background:"rgba(255,255,255,.5)",borderRadius:4}}><strong>Acción:</strong> {v.accion}</div>}
+                  {v.quien&&<div style={{fontSize:10.5,color:"#888",marginTop:3}}>Responsable: {v.quien}</div>}
+                </div>
+              </div>))}
+            <div className="slabel" style={{marginTop:18}}>Qué debes hacer ahora</div>
+            {(a.recAhora||[]).map((r,i)=>(
+              <div key={i} className={`sug ${r.prioridad==="inmediata"?"sug-hi":r.prioridad==="corto_plazo"?"sug-me":"sug-lo"}`}>
+                <span className="sug-tag">{r.prioridad==="inmediata"?"Inmediato":r.prioridad==="corto_plazo"?"Corto plazo":"Mediano plazo"}</span>
+                <div className="sug-text"><strong>{r.accion}</strong></div>
+                <div style={{fontSize:11.5,color:"#777",marginTop:3,fontStyle:"italic"}}>{r.para_que}</div>
+                {r.resp&&<div style={{fontSize:10.5,color:"#aaa",marginTop:2}}>Responsable: {r.resp}</div>}
+              </div>))}
+          </div>}
+
+          {tab===2&&<div>
+            <div className="alert alert-b" style={{marginBottom:14}}><span className="alert-icon">ℹ</span><div><strong>¿Para qué sirve esto?</strong> Muchos proyectos están en ejecución pero no registran la información que necesitan para presentarse a cooperación. Este panel identifica qué recopilar desde ahora.</div></div>
+            {(a.infoRecopilar||[]).map((s,i)=>(
+              <div key={i} className="vac-item">
+                <div className="vac-head">
+                  <div className={`sem ${s.urgencia==="alta"?"sem-r":s.urgencia==="media"?"sem-a":"sem-k"}`}/>
+                  <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>{s.dim}</div><div style={{fontSize:11,color:"#999",marginTop:1}}>{s.queFalta}</div></div>
+                  <span className={`badge ${s.urgencia==="alta"?"badge-r":s.urgencia==="media"?"badge-a":"badge-n"}`}>{s.urgencia==="alta"?"Urgente":s.urgencia==="media"?"Importante":"Recomendado"}</span>
+                </div>
+                <div className="vac-body"><div className="fwhy"><strong>Cómo recopilar:</strong> {s.como}</div></div>
+              </div>))}
+            {!project.tieneEvi&&<div className="vac-item">
+              <div className="vac-head"><div className="sem sem-r"/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>Evidencia de impacto</div><div style={{fontSize:11,color:"#999",marginTop:1}}>No existe evidencia documentada.</div></div><span className="badge badge-r">Urgente</span></div>
+              <div className="vac-body"><div className="fwhy"><strong>Cómo recopilar:</strong> Fotografías organizadas, testimonios sistematizados, registros de asistencia, informes de avance o evaluaciones básicas. Cualquier dato verificable mejora el diagnóstico.</div></div>
+            </div>}
+            {!project.audiovisual&&<div className="vac-item">
+              <div className="vac-head"><div className="sem sem-a"/><div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>Material audiovisual</div><div style={{fontSize:11,color:"#999",marginTop:1}}>No existe soporte audiovisual documentado.</div></div><span className="badge badge-a">Importante</span></div>
+              <div className="vac-body"><div className="fwhy"><strong>Cómo recopilar:</strong> Fotografías de calidad (antes/durante/después), video de 2-3 min con subtítulos en inglés, testimonios de beneficiarios con autorización.</div></div>
+            </div>}
+          </div>}
+
+          {tab===3&&<div>
+            <div className="alert alert-r" style={{marginBottom:14}}><span className="alert-icon">⚠</span><div><strong>MODELACIÓN PRELIMINAR — No es una TdC definitiva.</strong> Esta herramienta genera una estructura inicial que debe ser validada con el equipo de planeación y los técnicos del proyecto.</div></div>
+            {!showTDC&&!tdcResult&&<div>
+              <div className="callout"><p>El constructor guiado usa 6 preguntas para modelar la lógica del cambio de tu proyecto con la información real disponible. Si falta información, lo indicará explícitamente sin inventar.</p></div>
+              <button className="btn btn-primary" onClick={()=>setShowTDC(true)}>Construir modelación preliminar →</button>
+            </div>}
+            {showTDC&&!tdcResult&&<div>
+              {[{k:"cambio",l:"¿Qué cambio concreto busca generar en las personas o el territorio?",p:"Ej: Que las comunidades mejoren sus prácticas de conservación..."},
+                {k:"sujeto",l:"¿Quién es el sujeto de impacto (más allá del beneficiario directo)?",p:"Ej: Jóvenes rurales, sus familias y organizaciones comunitarias..."},
+                {k:"resultados",l:"¿Qué debe cambiar primero antes del impacto final? (resultados intermedios)",p:"Ej: Primero capacidades, luego participación, luego incidencia..."},
+                {k:"productos",l:"¿Qué productos concretos entrega el proyecto al finalizar?",p:"Ej: Planes formulados, líderes certificados, acuerdos firmados..."},
+                {k:"supuestos",l:"¿Qué condiciones externas deben cumplirse para que funcione?",p:"Ej: Apoyo de autoridades locales, disposición comunitaria, sin conflicto..."},
+                {k:"medicion",l:"¿Cómo se mediría el cambio? ¿Qué datos ya existen?",p:"Ej: Encuestas antes/después, número de acuerdos, áreas intervenidas..."}].map((q,i)=>(
+                <div key={q.k} style={{background:"#fff",border:"1.5px solid var(--border)",borderRadius:"var(--r10)",padding:"14px 16px",marginBottom:10}}>
+                  <div style={{display:"flex",gap:9,alignItems:"flex-start",marginBottom:8}}>
+                    <div style={{width:24,height:24,borderRadius:"50%",background:"var(--g2)",color:"#fff",fontSize:11,fontWeight:700,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{i+1}</div>
+                    <div style={{fontSize:13,fontWeight:600,lineHeight:1.5}}>{q.l}</div>
+                  </div>
+                  <textarea value={tdcAnswers[q.k]||""} onChange={e=>setTDCAnswers(a=>({...a,[q.k]:e.target.value}))} placeholder={q.p} style={{minHeight:70}}/>
+                </div>))}
+              {buildingTDC&&<div style={{textAlign:"center",padding:"20px"}}><div className="spin-g" style={{width:28,height:28,borderWidth:3,display:"inline-block"}}/><div style={{fontSize:13,color:"#999",marginTop:10}}>Construyendo modelación...</div></div>}
+              <div style={{display:"flex",gap:8,marginTop:12}}>
+                <button className="btn btn-ghost" onClick={()=>setShowTDC(false)}>Cancelar</button>
+                <button className="btn btn-primary" disabled={buildingTDC||Object.keys(tdcAnswers).filter(k=>tdcAnswers[k]?.trim().length>5).length<2} onClick={async()=>{setBuildingTDC(true);try{const r=await aiTDC(project,tdcAnswers);setTDCResult(r);setShowTDC(false);onRefresh&&onRefresh({...project,tcData:r});}catch(e){alert("Error: "+e.message);}setBuildingTDC(false);}}>
+                  {buildingTDC?<><div className="spin"/>Construyendo...</>:<>Construir →</>}
+                </button>
+              </div>
+            </div>}
+            {tdcResult&&<div>
+              <div style={{background:"rgba(0,102,51,.05)",border:"1px solid rgba(0,133,66,.15)",borderRadius:"var(--r10)",padding:"14px 16px",marginBottom:14}}>
+                <div style={{fontSize:11,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"var(--g1)",marginBottom:6}}>Narrativa preliminar</div>
+                <p style={{fontSize:13,color:"#444",lineHeight:1.8,fontStyle:"italic"}}>{tdcResult.narrada||"Sin narrativa disponible."}</p>
+              </div>
+              <div className="slabel">Cadena lógica</div>
+              <div className="tdc-wrap">
+                <div className="tdc-chain">
+                  {[{lv:"Actividades",items:(tdcResult.actividades||[]).flatMap(b=>b.items||[]).slice(0,4)},
+                    {lv:"Productos",items:(tdcResult.productos||[]).map(p=>p.txt).slice(0,4)},
+                    {lv:"Resultados",items:(tdcResult.resultados||[]).map(r=>r.txt),cls:"tdc-result"},
+                    {lv:"Impacto",items:[tdcResult.impacto?.txt||"—"],cls:"tdc-impact"}].map((col,ci)=>(
+                    <React.Fragment key={ci}>
+                      <div className={`tdc-node ${col.cls||""}`} style={{flex:1,minWidth:120}}>
+                        <div className="tdc-label">{col.lv}</div>
+                        {(col.items||[]).map((x,i)=><div key={i} className="tdc-item" style={{color:x?.includes("[Información")?"#f59e0b":""}}>{x||"—"}</div>)}
+                      </div>
+                      {ci<3&&<div className="tdc-arrow">→</div>}
+                    </React.Fragment>))}
+                </div>
+              </div>
+              {(tdcResult.calidad?.avisos||[]).length>0&&<div style={{marginTop:12}}>
+                <div className="slabel">Avisos de la modelación</div>
+                {tdcResult.calidad.avisos.map((a,i)=><div key={i} className="alert alert-a" style={{marginBottom:5}}><span>⚠</span><div style={{fontSize:12}}>{a}</div></div>)}
+              </div>}
+              <div className="grid2" style={{marginTop:12}}>
+                <div><div className="slabel">Fortalezas</div>{(tdcResult.calidad?.fortalezas||[]).map((f,i)=><div key={i} className="alert alert-g" style={{marginBottom:4}}><span>✓</span><div style={{fontSize:12}}>{f}</div></div>)}</div>
+                <div><div className="slabel">Vacíos críticos</div>{(tdcResult.calidad?.vacios||[]).map((v,i)=><div key={i} className="alert alert-r" style={{marginBottom:4}}><span>△</span><div style={{fontSize:12}}>{v}</div></div>)}</div>
+              </div>
+              <button className="btn btn-secondary btn-sm" onClick={()=>{setTDCResult(null);setShowTDC(false);setTDCAnswers({});}} style={{marginTop:10}}>Reconstruir →</button>
+            </div>}
+          </div>}
+
+          {tab===4&&<div>
+            <div className="callout"><p><strong>Perfil de cooperación:</strong> Genera automáticamente un resumen ejecutivo, descripción técnica y narrativa en inglés para presentar el proyecto a cooperantes o convocatorias.</p></div>
+            {!perfilResult&&<div>
+              <button className="btn btn-primary btn-lg" disabled={generatingPerfil} onClick={async()=>{setGeneratingPerfil(true);try{const r=await aiPerfil(project);setPerfilResult(r);}catch(e){alert("Error al generar: "+e.message);}setGeneratingPerfil(false);}}>
+                {generatingPerfil?<><div className="spin"/>Generando perfil...</>:<>🚀 Generar perfil de cooperación</>}
+              </button>
+            </div>}
+            {perfilResult&&<div>
+              <div className="alert alert-a" style={{marginBottom:14}}><span>⚠</span><div><strong>Insumo preliminar.</strong> Este perfil fue generado con la información disponible. Debe ser revisado y validado por cooperación antes de cualquier uso formal.</div></div>
+              {[{l:"Resumen ejecutivo",v:perfilResult.resumenEjecutivo},{l:"Descripción técnica",v:perfilResult.descripcionTecnica},{l:"Problema",v:perfilResult.problema},{l:"Solución",v:perfilResult.solucion}].map((s,i)=>s.v&&(
+                <div key={i} style={{marginBottom:14}}>
+                  <div className="slabel">{s.l}</div>
+                  <p style={{fontSize:13.5,lineHeight:1.8,color:"#333"}}>{s.v}</p>
+                </div>))}
+              {perfilResult.resultadosEsperados?.length>0&&<div style={{marginBottom:14}}>
+                <div className="slabel">Resultados esperados</div>
+                {perfilResult.resultadosEsperados.map((r,i)=><div key={i} className="alert alert-g" style={{marginBottom:4}}><span>✓</span><div style={{fontSize:12.5}}>{r}</div></div>)}
+              </div>}
+              {perfilResult.narrativaEN&&<div style={{background:"#001f15",borderRadius:"var(--r14)",padding:"18px 20px",marginBottom:14}}>
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"rgba(255,255,255,.38)",marginBottom:8}}>Executive Summary (English)</div>
+                <p style={{fontSize:13.5,color:"rgba(255,255,255,.8)",lineHeight:1.8,fontStyle:"italic"}}>{perfilResult.narrativaEN}</p>
+              </div>}
+              <div className="grid2">
+                {perfilResult.fortalezas?.length>0&&<div><div className="slabel">Fortalezas del proyecto</div>{perfilResult.fortalezas.map((f,i)=><div key={i} className="alert alert-g" style={{marginBottom:4}}><span>✓</span><div style={{fontSize:12}}>{f}</div></div>)}</div>}
+                {perfilResult.brechas?.length>0&&<div><div className="slabel">Brechas para cooperación</div>{perfilResult.brechas.map((b,i)=><div key={i} className="alert alert-a" style={{marginBottom:4}}><span>△</span><div style={{fontSize:12}}>{b}</div></div>)}</div>}
+              </div>
+              <button className="btn btn-ghost btn-sm" onClick={()=>setPerfilResult(null)} style={{marginTop:10}}>Regenerar →</button>
+            </div>}
+          </div>}
+
+          {tab===5&&<div>
+            <div className="slabel">Plan de próximos pasos</div>
+            {(a.pasos||[]).map((p,i)=>(
+              <div key={i} style={{display:"flex",gap:10,padding:"10px 0",borderBottom:"1px solid var(--border2)"}}>
+                <div style={{width:28,height:28,borderRadius:"50%",background:"var(--g4)",border:"2px solid var(--g2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11.5,fontWeight:700,color:"var(--g1)",flexShrink:0}}>{p.n}</div>
+                <div><div style={{fontSize:13,fontWeight:600,color:"#111",marginBottom:2}}>{p.titulo}</div><div style={{fontSize:12.5,color:"#666",lineHeight:1.55}}>{p.desc}</div>{p.area&&<div style={{fontSize:11,color:"#bbb",marginTop:2}}>Área: {p.area}</div>}</div>
+              </div>))}
+            {a.estadoTC&&<div style={{marginTop:18}}>
+              <div className="slabel">Estado de la teoría del cambio</div>
+              <div className="grid2">
+                <div><div style={{fontSize:11.5,fontWeight:600,color:"var(--g1)",marginBottom:6}}>Elementos presentes</div>{(a.estadoTC.presentes||[]).length>0?(a.estadoTC.presentes.map((e,i)=><span key={i} style={{display:"inline-block",background:"var(--g4)",color:"var(--g1)",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:500,margin:2}}>{e}</span>)):<span style={{fontSize:12,color:"#bbb"}}>Ninguno identificado</span>}</div>
+                <div><div style={{fontSize:11.5,fontWeight:600,color:"var(--am)",marginBottom:6}}>Elementos faltantes</div>{(a.estadoTC.faltantes||[]).map((e,i)=><span key={i} style={{display:"inline-block",background:"var(--am2)",color:"var(--am)",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:500,margin:2}}>{e}</span>)}</div>
+              </div>
+              <div className="alert alert-b" style={{marginTop:8}}><span>→</span><div>{a.estadoTC.rec}</div></div>
+            </div>}
+          </div>}
+
+        </div>
+      </div>}
+      <div className="disc"><span>ⓘ</span><p>Este diagnóstico es de apoyo. No reemplaza la revisión de cooperación, planeación, jurídica ni áreas expertas. Toda decisión institucional debe ser validada. Las salidas de IA son insumos preliminares que requieren revisión humana.</p></div>
+    </div>
+  );
+}
+
+/* CASO REFERENCIA */
+function CasoRef(){
+  const [tab,setTab]=useState(0);
+  const TABS=["Resumen","Teoría del cambio","Indicadores","Grupos de interés","Vacíos pendientes"];
+  return(
+    <div>
+      <div className="hero">
+        <div className="hero-ey">Caso institucional de referencia · No editable</div>
+        <h1 className="hero-title">Agua para la Educación,<br/><em>Educación para el Agua</em></h1>
+        <p className="hero-desc">Programa activo desde 2011. TdC refinada (Lapirawa&co / OEA, 2026). Reconocimiento en el 10° Foro Mundial del Agua (2024). Referente metodológico institucional.</p>
+        <div style={{display:"flex",flexWrap:"wrap",gap:5,marginBottom:18}}>
+          {["ODS 6","ODS 4","ODS 13","OEA·GEF CReW+","Antioquia","Foro Mundial Agua 2024"].map((t,i)=><span key={i} className="hero-tag">{t}</span>)}
+        </div>
+        <div className="grid4">
+          {[{v:"876+",l:"Soluciones instaladas"},{v:"103.000+",l:"Personas impactadas"},{v:"104",l:"IEDs rurales"},{v:"2011",l:"Año de inicio"}].map((m,i)=><div key={i} className="hero-metric"><div className="hero-metric-v">{m.v}</div><div className="hero-metric-l">{m.l}</div></div>)}
+        </div>
+      </div>
+      <div className="alert alert-b" style={{marginBottom:14}}><span>ℹ</span><div><strong>Nota:</strong> Este caso es una referencia institucional real, no una plantilla. Muestra cómo se organiza un programa con soporte sólido. Cada proyecto debe construir su propia lógica según su realidad y evidencia.</div></div>
+      <div style={{background:"#fff",border:"1px solid var(--border)",borderRadius:"var(--r20)",overflow:"hidden",boxShadow:"var(--shadow)"}}>
+        <div className="tabs" style={{padding:"0 18px",background:"#fafcfa"}}>{TABS.map((t,i)=><button key={i} className={`tab ${tab===i?"on":""}`} onClick={()=>setTab(i)}>{t}</button>)}</div>
+        <div style={{padding:"20px"}}>
+          {tab===0&&<div>
+            <div className="grid2" style={{marginBottom:18}}>
+              <div><div className="slabel">Descripción</div><p style={{fontSize:13.5,lineHeight:1.8,color:"#333",marginBottom:10}}>Garantiza acceso sostenible a agua potable en instituciones educativas rurales de Colombia, articulando potabilización con educación ambiental transformadora.</p><p style={{fontSize:13.5,lineHeight:1.8,color:"#333"}}>Tres componentes: <strong>técnico</strong> (ultrafiltración SiC), <strong>socioeducativo</strong> ("Guardianes del Agua": 312 Hidroprofes, 208 encuentros) y <strong>ambiental-comunitario</strong> (humedal demostrativo, huertas, redes).</p></div>
+              <div><div className="slabel">Contexto</div>{[{c:"alert-r",i:"⚠",t:"2.859 de 4.308 sedes rurales en Antioquia sin agua potable (Sec. Educación, 2024)."},
+                {c:"alert-a",i:"△",t:"Ninguna región de Antioquia fuera del Valle de Aburrá supera 65% de cobertura rural (2023)."},
+                {c:"alert-n",i:"○",t:"13,8 millones de colombianos sin agua apta para consumo (CRA)."}].map((a,i)=><div key={i} className={`alert ${a.c}`} style={{marginBottom:5}}><span>{a.i}</span><div style={{fontSize:12}}>{a.t}</div></div>)}</div>
+            </div>
+          </div>}
+          {tab===1&&<div>
+            <div style={{background:"var(--g1)",borderRadius:"var(--r14)",padding:"18px 20px",marginBottom:16}}>
+              <div style={{fontSize:9,fontWeight:700,letterSpacing:1.8,textTransform:"uppercase",color:"rgba(255,255,255,.35)",marginBottom:7}}>Visión de impacto (Lapirawa&co · OEA · Abril 2026)</div>
+              <p style={{fontFamily:"'Syne',sans-serif",fontSize:15,color:"#fff",lineHeight:1.65,fontStyle:"italic",marginBottom:10}}>"Comunidades educativas rurales mejoran sus condiciones de bienestar a partir del acceso sostenible al agua potable, el fortalecimiento de capacidades para su gestión y cuidado, y la protección de las fuentes hídricas."</p>
+              <div style={{fontSize:11.5,color:"rgba(255,255,255,.45)"}}>Sujeto: <strong style={{color:"rgba(160,255,190,.85)"}}>comunidad educativa rural</strong> — estudiantes, docentes, directivos, familias, cuidadores y actores comunitarios.</div>
+            </div>
+            <div className="slabel">Cadena de la TdC</div>
+            <div className="tdc-wrap">
+              <div className="tdc-chain">
+                {[{lv:"Actividades",items:["Planeación y viabilidad","Implementación técnica","Formación y apropiación","Sostenibilidad ambiental"]},
+                  {lv:"Productos",items:["Soluciones instaladas","Materiales pedagógicos","Capacidades para O&M","Humedales y huertas"]},
+                  {lv:"Resultados",items:["RI 1: Acceso continuo a agua apta","RI 2: Capacidades para sostenibilidad","RI 3: Prácticas de gestión sostenible"],cls:"tdc-result"},
+                  {lv:"Impacto",items:["Comunidades educativas rurales mejoran sus condiciones de bienestar"],cls:"tdc-impact"}].map((col,ci)=>(
+                  <React.Fragment key={ci}>
+                    <div className={`tdc-node ${col.cls||""}`} style={{flex:1,minWidth:118}}>
+                      <div className="tdc-label">{col.lv}</div>
+                      {col.items.map((x,i)=><div key={i} className="tdc-item">{x}</div>)}
+                    </div>
+                    {ci<3&&<div className="tdc-arrow">→</div>}
+                  </React.Fragment>))}
+              </div>
+            </div>
+          </div>}
+          {tab===2&&<div>
+            <div className="slabel">Batería mínima de indicadores de producto</div>
+            <table className="dt"><thead><tr><th>Indicador</th><th>Unidad</th></tr></thead>
+              <tbody>{[["Soluciones instaladas y operativas","Número"],["Comunidades con componente pedagógico","Número"],["Docentes + estudiantes participantes","Número"],["PRAE fortalecidos","Número"],["Comités del agua activos","Número"],["Personas capacitadas en O&M","Número"]].map((r,i)=><tr key={i}><td>{r[0]}</td><td><span className="badge badge-b">{r[1]}</span></td></tr>)}</tbody>
+            </table>
+            <div style={{background:"var(--g1)",borderRadius:"var(--r14)",padding:"16px 18px",marginTop:14}}>
+              <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,textTransform:"uppercase",color:"rgba(255,255,255,.35)",marginBottom:7}}>Indicador de impacto propuesto</div>
+              <div style={{fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,color:"#fff",marginBottom:7}}>Índice de bienestar percibido de la comunidad educativa</div>
+              <p style={{fontSize:12,color:"rgba(255,255,255,.6)",lineHeight:1.65}}>Escala Likert 1–5. 5 dimensiones. Línea base al inicio; seguimiento a 6 y 12 meses. Dimensiones: salubridad percibida, confianza en el agua, bienestar cotidiano, cuidado del entorno, apropiación comunitaria.</p>
+            </div>
+          </div>}
+          {tab===3&&<div>
+            <table className="dt"><thead><tr><th>Actor</th><th>Rol</th><th>Cambio esperado</th><th>Interés</th><th>Influencia</th></tr></thead>
+              <tbody>{[["Fundación EPM","Instalación y facilitación","Cerrar brechas de acceso a agua","Alto","Alto"],["EPM","Financiador","Impactar comunidades rurales","Alto","Alto"],["Líderes comunitarios","Articuladores","Comunidades accedan a agua","Alto","Alto"],["Administración municipal","Sostenibilidad","Garantizar acceso continuo","Bajo","Alto"],["Instituciones educativas","Beneficiarios y facilitadores","Acceso a agua para consumo","Alto","Bajo"],["Estudiantes","Beneficiarios directos","Consumir y cuidar el agua","Alto","Bajo"]].map((r,i)=><tr key={i}><td style={{fontWeight:600}}>{r[0]}</td><td style={{fontSize:12}}>{r[1]}</td><td style={{fontSize:12}}>{r[2]}</td><td><span className={`badge ${r[3]==="Alto"?"badge-g":"badge-n"}`}>{r[3]}</span></td><td><span className={`badge ${r[4]==="Alto"?"badge-b":"badge-n"}`}>{r[4]}</span></td></tr>)}</tbody>
+            </table>
+          </div>}
+          {tab===4&&<div>
+            <div className="callout"><p>Incluso con 15 años y reconocimiento internacional, este programa tiene vacíos pendientes. El fortalecimiento es un proceso continuo.</p></div>
+            <div className="grid2">
+              <div><div className="slabel" style={{color:"var(--g1)"}}>Lo que el programa tiene sólido</div>{["TdC refinada con 3 resultados intermedios coherentes.","5 productos articulados y medibles.","Indicadores en 4 niveles.","876+ soluciones instaladas como evidencia de escala.","Alianza activa con OEA en GEF CReW+.","Reconocimiento Foro Mundial del Agua 2024.","Estrategia educativa sin conectividad."].map((x,i)=><div key={i} className="alert alert-g" style={{marginBottom:4}}><span>✓</span><div style={{fontSize:12}}>{x}</div></div>)}</div>
+              <div><div className="slabel" style={{color:"var(--am)"}}>Vacíos pendientes</div>{["Línea base de bienestar percibido aún no levantada.","Indicadores de mediano plazo sin datos históricos sistemáticos.","Humedales y huertas en piloto sin resultados consolidados.","Soporte comunicacional en inglés limitado.","Estrategia de financiación diversificada en proceso.","Impacto en salud no sistematizado como evidencia verificable."].map((x,i)=><div key={i} className="alert alert-a" style={{marginBottom:4}}><span>△</span><div style={{fontSize:12}}>{x}</div></div>)}</div>
+            </div>
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* LINEAMIENTOS */
+function LineamientosView(){
+  const [sub,setSub]=useState(0);
+  const SUBS=["Conceptos clave","Tipos de cooperación","Proceso interno","Criterios calidad","Errores comunes"];
+  const conceptos=[
+    {i:"🌐",t:"¿Qué es cooperación internacional?",d:"Relación entre organizaciones de distintos países en la que se intercambian recursos, conocimientos o capacidades para objetivos comunes de desarrollo.",c:"Cuando identifiques un aliado externo con recursos o interés técnico.",a:"Registra la oportunidad y contacta al equipo de cooperación antes de comprometer nada."},
+    {i:"💰",t:"¿Qué es una subvención (grant)?",d:"Recurso no reembolsable de un donante para financiar un proyecto que responde a sus prioridades. No se devuelve, pero tiene condiciones estrictas.",c:"Cuando exista convocatoria abierta o invitación formal de un donante.",a:"Carga la información del proyecto y contacta cooperación para validar elegibilidad."},
+    {i:"🔄",t:"¿Qué es cooperación técnica?",d:"Intercambio de conocimientos, metodologías o asistencia especializada. Puede ser sin recursos financieros.",c:"Cuando el valor es el conocimiento, no el dinero.",a:"Identifica qué necesitas técnicamente y qué puedes ofrecer a cambio."},
+    {i:"↔",t:"¿Qué es cooperación Sur-Sur?",d:"Cooperación entre países en desarrollo. Colombia puede ser receptor y donante al mismo tiempo.",c:"Cuando el aliado sea de un país latinoamericano, africano o asiático.",a:"Coordina con cooperación para explorar modalidades específicas."},
+    {i:"🏆",t:"¿Qué es un premio internacional?",d:"Reconocimiento externo que puede incluir visibilidad, recursos o acceso a redes. No es lo mismo que una subvención.",c:"Cuando el proyecto tenga resultados verificables y narrativa sólida.",a:"Valida con cooperación y comunicaciones antes de postular. Requiere material en inglés."},
+    {i:"💱",t:"¿Qué es una contrapartida?",d:"El aporte que hace la Fundación a un proyecto cofinanciado: dinero, tiempo del equipo, infraestructura o materiales.",c:"Casi siempre. La mayoría de donantes la exigen.",a:"Identifica qué puede aportar la Fundación y valida con finanzas y planeación."},
+    {i:"⚑",t:"¿Por qué NO comprometer sin validación?",d:"Comprometer la organización sin validación puede generar conflictos jurídicos, presupuestales o institucionales.",c:"Siempre, antes de cualquier respuesta formal a un aliado.",a:"Registra, orienta la conversación y activa al equipo de cooperación."},
+    {i:"⏰",t:"¿Por qué los tiempos del donante mandan?",d:"Los donantes tienen ciclos de convocatoria, plazos de ejecución y reportes obligatorios. La preparación debe anticiparse.",c:"Cuando quieras postular a una convocatoria.",a:"Prepara el proyecto antes de que abra la convocatoria, no después."},
+  ];
+  return(
+    <div>
+      <div className="hero"><div className="hero-ey">Módulo pedagógico</div><h1 className="hero-title">Lineamientos de<br/><em>cooperación internacional</em></h1><p className="hero-desc">Aprende los conceptos clave, entiende cómo funciona la cooperación y qué debes hacer en cada situación. Diseñado para personas sin experiencia previa.</p></div>
+      <div style={{background:"#fff",border:"1px solid var(--border)",borderRadius:"var(--r20)",overflow:"hidden",boxShadow:"var(--shadow)"}}>
+        <div className="tabs" style={{padding:"0 18px",background:"#fafcfa"}}>{SUBS.map((t,i)=><button key={i} className={`tab ${sub===i?"on":""}`} onClick={()=>setSub(i)}>{t}</button>)}</div>
+        <div style={{padding:"20px"}}>
+          {sub===0&&<div className="grid2">{conceptos.map((c,i)=><div key={i} className="cc"><div className="cc-ico">{c.i}</div><div className="cc-title">{c.t}</div><div className="cc-desc">{c.d}</div>{c.c&&<div className="cc-cta"><strong>Cuándo aplica:</strong> {c.c}</div>}{c.a&&<div style={{fontSize:11,color:"#999",marginTop:5,padding:"4px 8px",background:"#fafcfa",borderRadius:4,borderLeft:"2px solid var(--border)"}}><strong>Qué hacer:</strong> {c.a}</div>}</div>)}</div>}
+          {sub===1&&<div><div className="callout"><p>Entender los tipos de cooperación ayuda a saber qué esperar, qué preparar y cuándo involucrar al equipo especializado.</p></div><div className="grid2">{[{i:"🔑",t:"Cooperación vs. relación comercial",d:"Una relación comercial implica pago por servicio. La cooperación implica alineación de propósitos sin lógica de mercado."},
+            {i:"⚠",t:"No todo aliado con recursos = cooperación",d:"Un aliado puede tener dinero pero no compartir las prioridades del proyecto o exigir contraprestaciones comerciales."},
+            {i:"🌎",t:"Cooperación triangular",d:"Involucra tres actores: donante, país del Sur que aporta experiencia, y receptor. Mayor complejidad institucional."},
+            {i:"🤝",t:"Alianza estratégica",d:"Relación de mediano-largo plazo entre organizaciones con roles y compromisos definidos y objetivos compartidos."},
+            {i:"📋",t:"Por qué se necesita evidencia antes",d:"Sin evidencia, las afirmaciones del proyecto no son verificables. Los evaluadores internacionales descartan propuestas sin datos."},
+            {i:"📊",t:"Por qué son clave indicadores y línea base",d:"Los indicadores miden el cambio. La línea base muestra el punto de partida. Sin ellos no se puede demostrar transformación."}].map((c,i)=><div key={i} className="cc"><div className="cc-ico">{c.i}</div><div className="cc-title">{c.t}</div><div className="cc-desc">{c.d}</div></div>)}</div></div>}
+          {sub===2&&<div><div className="callout"><p>Esta ruta muestra el camino que debe seguir una oportunidad de cooperación dentro de la Fundación. Esta herramienta no reemplaza esta ruta: la apoya.</p></div><div style={{maxWidth:540}}>{[["1","Área identifica proyecto, idea u oportunidad","Área técnica"],["2","Área carga información en esta herramienta","Área técnica"],["3","Herramienta identifica vacíos y genera orientación","Sistema"],["4","Área contacta al equipo de cooperación","Área + Cooperación"],["5","Cooperación revisa tipo de oportunidad y modalidad","Cooperación"],["6","Planeación valida viabilidad técnica","Planeación"],["7","Jurídica revisa modalidad e instrumento","Jurídica"],["8","Finanzas revisa presupuesto y contrapartida","Finanzas"],["9","Comunicaciones apoya materiales y narrativa","Comunicaciones"],["10","Se decide: formular, ajustar o descartar","Equipo interdisciplinario"]].map((p,i)=><div key={i} style={{display:"flex",gap:10,padding:"10px 0",borderBottom:"1px solid var(--border2)"}}>
+            <div style={{width:28,height:28,borderRadius:"50%",background:"var(--g4)",border:"2px solid var(--g2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11.5,fontWeight:700,color:"var(--g1)",flexShrink:0}}>{p[0]}</div>
+            <div><div style={{fontSize:13,fontWeight:600,color:"#111"}}>{p[1]}</div><div style={{fontSize:11,color:"#bbb",marginTop:1}}>{p[2]}</div></div>
+          </div>)}</div></div>}
+          {sub===3&&<div>{[{t:"Alineación con ODS y prioridades institucionales",d:"El proyecto debe conectar con las prioridades de la Fundación y agendas globales. Debe poder decir: 'contribuye al ODS X porque...' con evidencia."},
+            {t:"Objetivos SMART y medibles",d:"Específicos, medibles, alcanzables, relevantes y con tiempo definido. Sin métricas no hay evaluación posible."},
+            {t:"Indicadores en cuatro niveles",d:"Producto (qué se hace), resultado CP (qué cambia pronto), resultado MP (qué persiste) e impacto (qué transforma)."},
+            {t:"Sostenibilidad demostrable",d:"¿Qué pasa cuando termina el financiamiento? Debe responder esta pregunta con datos, no con narrativa."},
+            {t:"Participación comunitaria real",d:"Las comunidades deben participar, no solo recibir. La agencia comunitaria es un diferenciador en cooperación."},
+            {t:"Coherencia técnica — TdC verificable",d:"Las actividades deben llevar lógicamente a los resultados. Los supuestos deben estar explicitados y gestionados."}].map((c,i)=><div key={i} className="card card-sm" style={{marginBottom:8,borderLeft:"4px solid var(--g2)"}}><div style={{fontSize:13.5,fontWeight:700,marginBottom:3}}>{c.t}</div><div style={{fontSize:12.5,color:"#666",lineHeight:1.65}}>{c.d}</div></div>)}</div>}
+          {sub===4&&<div>{[{c:"alert-r",t:"Objetivos vagos o no verificables",d:"Verbos como 'mejorar', 'fortalecer' sin métrica. No se puede evaluar lo que no se puede medir."},
+            {c:"alert-r",t:"Ausencia de indicadores por nivel",d:"Sin indicadores no se puede demostrar que el proyecto logró lo que prometió."},
+            {c:"alert-a",t:"Presupuesto débil o incoherente con resultados",d:"Un proyecto barato que promete mucho genera desconfianza. El presupuesto debe ser coherente."},
+            {c:"alert-a",t:"Falta de evidencia — 'lo hacemos bien pero no lo podemos mostrar'",d:"Sin datos, las afirmaciones son retórica. La evidencia es el activo más valioso."},
+            {c:"alert-a",t:"Sin línea base",d:"Sin línea base no se puede demostrar cambio. Es la brecha más frecuente y costosa."},
+            {c:"alert-a",t:"Sin sistema de M&E",d:"Un proyecto sin monitoreo no puede demostrar aprendizaje ni mejora continua."},
+            {c:"alert-n",t:"Sin materiales en inglés",d:"Para cooperación internacional, la narrativa y materiales en inglés son indispensables."},
+            {c:"alert-n",t:"Dejar todo a la IA sin revisión humana",d:"La IA organiza y sugiere pero no reemplaza el criterio técnico. Toda salida debe ser revisada."}].map((e,i)=><div key={i} className={`alert ${e.c}`} style={{marginBottom:6}}><span>{e.c==="alert-r"?"⚠":"△"}</span><div><strong>{e.t}</strong><br/><span style={{fontSize:12}}>{e.d}</span></div></div>)}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* PR042 */
+function PR042View(){
+  return(
+    <div>
+      <div className="hero"><div className="hero-ey">Módulo institucional · En preparación</div><h1 className="hero-title">Lineamientos institucionales<br/><em>Procedimiento PR 042</em></h1><p className="hero-desc">Este módulo integrará los lineamientos internos de planeación definidos en el PR 042 de la Fundación Grupo EPM. Disponible próximamente.</p></div>
+      <div className="pr042-box">
+        <div style={{fontSize:36,marginBottom:14,opacity:.4}}>📋</div>
+        <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:700,color:"#888",marginBottom:10}}>Módulo reservado — PR 042</h2>
+        <p style={{fontSize:13.5,color:"#aaa",lineHeight:1.7,maxWidth:500,margin:"0 auto 22px"}}>Este módulo integrará los lineamientos institucionales de planeación definidos en el PR 042. Orientará a las áreas sobre criterios internos de planeación, factibilidad, formulación, responsabilidades, aprobación y seguimiento de proyectos.</p>
+        <div style={{display:"inline-flex",gap:6,background:"var(--am2)",border:"1px solid rgba(184,102,10,.3)",borderRadius:20,padding:"5px 14px",fontSize:11.5,fontWeight:700,color:"var(--am)",marginBottom:26}}>⏳ Esperando carga del documento PR 042</div>
+        <div style={{background:"#fff",border:"1px solid var(--border)",borderRadius:"var(--r14)",padding:"20px 24px",textAlign:"left",maxWidth:580,margin:"0 auto"}}>
+          <div className="slabel" style={{marginBottom:12}}>Secciones que incluirá este módulo</div>
+          {["Objetivo del procedimiento","Alcance institucional","Roles y responsables internos","Etapas de planeación de proyectos","Criterios de factibilidad técnica y financiera","Validaciones internas requeridas","Documentación requerida por etapa","Puntos de control y aprobación","Relación con la estrategia de cooperación internacional"].map((s,i)=><div key={i} style={{display:"flex",gap:8,padding:"8px 0",borderBottom:i<8?"1px solid var(--border2)":"none",fontSize:13,color:"#555"}}>
+            <span style={{color:"#ddd"}}>—</span>{s}
+          </div>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ALIADOS */
+function AliadosView({allies,onSaveAlly,onDeleteAlly}){
+  const [formOpen,setFormOpen]=useState(false);
+  const [editing,setEditing]=useState(null);
+  const [d,setD]=useState({...EMPTY_ALLY});
+  const ch=(f,v)=>setD(p=>({...p,[f]:v}));
+  const openNew=()=>{setD({...EMPTY_ALLY,id:Date.now()});setEditing(null);setFormOpen(true)};
+  const openEdit=(a)=>{setD({...a});setEditing(a.id);setFormOpen(true)};
+  const save=()=>{onSaveAlly({...d,id:d.id||Date.now()});setFormOpen(false);setEditing(null)};
+  const TIPOS=["Fundación privada","Organismo multilateral","Gobierno extranjero","Empresa transnacional","ONG internacional","Academia","Fondo de cooperación","Otro"];
+  const ESTADOS3=["Primera conversación","Interés manifestado","Propuesta compartida","En revisión interna","En pausa","Activo"];
+  return(
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:18}}>
+        <div><div className="slabel" style={{marginBottom:2}}>Módulo de relacionamiento</div><div style={{fontFamily:"'Syne',sans-serif",fontSize:22,fontWeight:800}}>Aliados y oportunidades</div></div>
+        <button className="btn btn-primary" onClick={openNew}>+ Registrar aliado</button>
+      </div>
+      {formOpen&&<div className="card" style={{marginBottom:14,borderTop:"4px solid var(--g2)"}}>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:14}}>
+          <div className="card-title">{editing?"Editar aliado":"Nuevo aliado"}</div>
+          <button className="btn btn-ghost btn-sm" onClick={()=>setFormOpen(false)}>× Cerrar</button>
+        </div>
+        <div className="frow"><div className="fg"><label className="flabel">Nombre u organización *</label><input type="text" value={d.nombre} onChange={e=>ch("nombre",e.target.value)} placeholder="Nombre del aliado"/></div><div className="fg"><label className="flabel">País</label><input type="text" value={d.pais} onChange={e=>ch("pais",e.target.value)} placeholder="País de origen"/></div></div>
+        <div className="frow"><div className="fg"><label className="flabel">Tipo de actor</label><select value={d.tipo} onChange={e=>ch("tipo",e.target.value)}><option value="">Seleccione tipo</option>{TIPOS.map(t=><option key={t}>{t}</option>)}</select></div><div className="fg"><label className="flabel">Estado de la relación</label><select value={d.estado} onChange={e=>ch("estado",e.target.value)}>{ESTADOS3.map((s,i)=><option key={i} value={s}>{s}</option>)}</select></div></div>
+        <div className="fg"><label className="flabel">Oportunidad o propuesta</label><textarea value={d.interes} onChange={e=>ch("interes",e.target.value)} placeholder="¿Qué trajo este aliado? ¿Cuál es la propuesta?" style={{minHeight:60}}/></div>
+        <div className="frow"><div className="fg"><label className="flabel">Recursos u apoyo ofrecido</label><input type="text" value={d.recursos} onChange={e=>ch("recursos",e.target.value)} placeholder="Financiero, técnico, visibilidad..."/></div><div className="fg"><label className="flabel">Proyecto relacionado</label><input type="text" value={d.proyectoRel} onChange={e=>ch("proyectoRel",e.target.value)} placeholder="¿Con qué proyecto se relaciona?"/></div></div>
+        <div className="frow"><div className="fg"><label className="flabel">Responsable interno</label><input type="text" value={d.responsable} onChange={e=>ch("responsable",e.target.value)} placeholder="¿Quién lleva esta relación?"/></div><div className="fg"><label className="flabel">Fecha de contacto</label><input type="date" value={d.fecha} onChange={e=>ch("fecha",e.target.value)}/></div></div>
+        <div className="fg"><label className="flabel">Siguiente paso concreto</label><input type="text" value={d.siguiente} onChange={e=>ch("siguiente",e.target.value)} placeholder="¿Qué debe hacerse? ¿Para cuándo?"/></div>
+        {d.recursos&&d.recursos.toLowerCase().includes("financ")&&<div className="alert alert-a"><span>⚑</span><div><strong>Nota:</strong> Si hay recursos financieros, requiere validación de contrapartida y revisión jurídica antes de responder formalmente.</div></div>}
+        <div style={{display:"flex",gap:8,marginTop:12}}><button className="btn btn-ghost" onClick={()=>setFormOpen(false)}>Cancelar</button><button className="btn btn-primary" disabled={!d.nombre.trim()} onClick={save}>Guardar aliado</button></div>
+      </div>}
+      {allies.length===0?<div className="empty-state"><div className="empty-icon">🤝</div><div className="empty-title">No hay aliados registrados</div><div style={{fontSize:13,marginBottom:14}}>Registra aliados y oportunidades para no perderlos entre correos dispersos.</div><button className="btn btn-primary" onClick={openNew}>+ Registrar primer aliado</button></div>:(
+        <table className="dt"><thead><tr><th>Aliado</th><th>País</th><th>Tipo</th><th>Proyecto</th><th>Estado</th><th>Responsable</th><th></th></tr></thead>
+          <tbody>{allies.map(a=>(
+            <tr key={a.id}>
+              <td style={{fontWeight:700}}>{a.nombre}<br/><span style={{fontSize:11,color:"#bbb",fontWeight:400}}>{a.interes?.slice(0,40)+(a.interes?.length>40?"…":"")}</span></td>
+              <td>{a.pais||"—"}</td>
+              <td><span className="badge badge-n">{a.tipo||"—"}</span></td>
+              <td>{a.proyectoRel||"—"}</td>
+              <td><span className={`badge ${a.estado==="Activo"?"badge-g":a.estado==="En pausa"?"badge-n":"badge-a"}`}>{a.estado||"Primera conversación"}</span></td>
+              <td>{a.responsable||"—"}</td>
+              <td><div style={{display:"flex",gap:5}}><button className="btn btn-ghost btn-sm" onClick={()=>openEdit(a)}>✎</button><button className="btn btn-danger btn-sm" onClick={()=>{if(window.confirm("¿Eliminar?"))onDeleteAlly(a.id)}}>✕</button></div></td>
+            </tr>))}</tbody>
+        </table>)}
+    </div>
+  );
+}
+
+/* Misc views */
+function ComunicacionView(){
+  return<div>
+    <div className="hero"><div className="hero-ey">Módulo de comunicación</div><h1 className="hero-title">Soportes para<br/><em>cooperación internacional</em></h1><p className="hero-desc">Los proyectos competitivos tienen soportes comunicacionales sólidos. Aquí sabrás qué preparar y cómo hacerlo.</p></div>
+    <div className="grid2">{[{i:"📄",t:"Resumen ejecutivo en inglés",r:"Obligatorio",d:"Una página. Incluye: qué hace, a quién llega, qué ha logrado, qué necesita y por qué le importa al donante."},
+      {i:"🎥",t:"Video subtitulado en inglés",r:"Muy recomendado",d:"2-3 minutos. Muestra el problema, la intervención, los beneficiarios y el cambio. Subtítulos en inglés. En plataforma institucional."},
+      {i:"📸",t:"Fotografías organizadas",r:"Obligatorio",d:"Antes/durante/después. Con contexto y autorización. Personas reales, territorio y transformación."},
+      {i:"📊",t:"Infografía de resultados en inglés",r:"Recomendado",d:"Datos clave en formato visual. Cifras verificables. Diseño institucional. Sin texto excesivo."},
+      {i:"📋",t:"Presentación corta (10 diapositivas)",r:"Recomendado",d:"Para reuniones con aliados. Narrativa clara, datos concretos, fotos reales. En inglés y español."},
+      {i:"🗣",t:"Testimonios con autorización",r:"Recomendado",d:"Beneficiarios hablando del cambio generado. Con nombre, comunidad y autorización firmada."}].map((c,i)=>
+      <div key={i} className="cc"><div className="cc-ico">{c.i}</div><div style={{display:"flex",alignItems:"center",gap:7,marginBottom:4}}><div className="cc-title" style={{marginBottom:0}}>{c.t}</div><span className={`badge ${c.r==="Obligatorio"?"badge-r":"badge-a"}`}>{c.r}</span></div><div className="cc-desc">{c.d}</div></div>)}
+    </div>
+    <div className="card" style={{marginTop:14}}><div className="card-title">Recomendaciones clave</div>{[["✓","Cargar videos en YouTube institucional con subtítulos en inglés."],["✓","Incluir cifras verificables en todas las piezas gráficas."],["✓","Mostrar personas reales, territorio reconocible, problema concreto y cambio evidente."],["✗","No usar material sin autorización de las personas que aparecen."],["✗","No publicar cifras sin fuentes citadas."],["✗","No usar fotos de archivo que no correspondan al proyecto."]].map((x,i)=><div key={i} className={`alert ${x[0]==="✓"?"alert-g":"alert-r"}`} style={{marginBottom:4}}><span>{x[0]}</span><div style={{fontSize:12.5}}>{x[1]}</div></div>)}</div>
+  </div>;
+}
+function VozView(){
+  return<div>
+    <div className="hero"><div className="hero-ey">Módulo pedagógico</div><h1 className="hero-title"><em>La voz del donante</em></h1><p className="hero-desc">No se trata de cambiar la identidad de la Fundación. Se trata de traducir el proyecto al lenguaje, prioridades y criterios del cooperante.</p></div>
+    <div className="alert alert-n" style={{marginBottom:14}}><span>💡</span><div><strong>¿Qué es la voz del donante?</strong> Es la forma en que el cooperante entiende el problema, define sus prioridades y evalúa propuestas. Entenderla no cambia quiénes somos: significa hablar el mismo idioma.</div></div>
+    <div className="card"><div className="card-title">Preguntas guía para conectar con la voz del donante</div>{[["¿Qué quiere financiar?","Revisa sus convocatorias, informes anuales y sitio web. Cada donante tiene un mandato específico."],["¿Qué problema prioriza?","Los donantes no financian proyectos: financian soluciones a problemas que ellos han definido como prioritarios."],["¿Qué población le interesa?","Niñez, mujeres, comunidades rurales, cambio climático. Identificarlo es clave."],["¿Qué resultados espera?","No lo que la Fundación quiere mostrar, sino lo que el donante necesita demostrar ante sus financiadores."],["¿Qué evidencia pide?","Historias de cambio, datos duros, evaluaciones de impacto. Adaptar la evidencia al formato esperado."],["¿Qué palabras usa?","Si el donante habla de 'resiliencia climática', el proyecto debe usar ese marco."],["¿Qué NO financia?","Tan importante como saber qué financia. Postular sin ajuste es perder tiempo de todos."]].map((q,i)=><div key={i} style={{padding:"10px 0",borderBottom:i<6?"1px solid var(--border2)":"none"}}><div style={{fontSize:13,fontWeight:700,color:"#111",marginBottom:2}}>{q[0]}</div><div style={{fontSize:12.5,color:"#666",lineHeight:1.6}}>{q[1]}</div></div>)}</div>
+  </div>;
+}
+function IAView(){
+  return<div>
+    <div className="hero"><div className="hero-ey">Uso responsable</div><h1 className="hero-title">La IA como <em>copiloto</em></h1><p className="hero-desc">La inteligencia artificial ayuda a organizar información y detectar vacíos. No reemplaza el criterio técnico institucional.</p></div>
+    <div className="alert alert-r" style={{marginBottom:14}}><span>⚠</span><div><strong>Aviso importante:</strong> Esta herramienta genera insumos preliminares. Toda propuesta, TdC, indicador o estimación de impacto debe ser revisada por los equipos responsables. La IA puede equivocarse u omitir contexto si la información es incompleta.</div></div>
+    <div className="grid2" style={{marginBottom:14}}>
+      <div className="card" style={{borderLeft:"4px solid var(--g2)"}}><div className="card-title">Qué puede hacer esta herramienta</div>{["Organizar información dispersa de un proyecto.","Identificar vacíos de información de forma sistemática.","Generar una modelación preliminar de TdC.","Sugerir indicadores posibles según el tipo de proyecto.","Orientar sobre el tipo de cooperación que podría aplicar.","Producir una síntesis ejecutiva del proyecto.","Generar un perfil de cooperación preliminar."].map((x,i)=><div key={i} className="alert alert-g" style={{marginBottom:4}}><span>✓</span><div style={{fontSize:12}}>{x}</div></div>)}</div>
+      <div className="card" style={{borderLeft:"4px solid var(--rd)"}}><div className="card-title">Qué NO puede hacer</div>{["Reemplazar el criterio técnico de planeación.","Garantizar aprobación de una propuesta.","Calcular ROI social sin datos reales.","Construir una TdC definitiva sin trabajo técnico.","Validar aspectos jurídicos.","Comprometer recursos o alcances institucionales.","Sustituir las revisiones de cooperación, planeación y jurídica."].map((x,i)=><div key={i} className="alert alert-r" style={{marginBottom:4}}><span>✗</span><div style={{fontSize:12}}>{x}</div></div>)}</div>
+    </div>
+    <div style={{background:"var(--g1)",borderRadius:"var(--r14)",padding:"18px 20px"}}>
+      <div style={{fontFamily:"'Syne',sans-serif",fontSize:15,fontWeight:700,color:"rgba(160,255,190,.9)",marginBottom:10}}>No existe el prompt perfecto. Existe el análisis correcto.</div>
+      <p style={{fontSize:13,lineHeight:1.8,color:"rgba(255,255,255,.65)",marginBottom:12}}>Un buen resultado depende del contexto cargado, la calidad de los datos y la revisión humana del resultado. La IA es tan buena como la información que recibe.</p>
+      <div className="grid4">{[["📥","Carga información real"],["🔍","Revisa críticamente"],["👥","Valida con equipos"],["📋","Documenta decisiones"]].map((x,i)=><div key={i} style={{background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.1)",borderRadius:"var(--r6)",padding:"9px 11px",display:"flex",gap:7,alignItems:"center"}}><span style={{fontSize:16}}>{x[0]}</span><span style={{fontSize:11.5,color:"rgba(255,255,255,.8)"}}>{x[1]}</span></div>)}</div>
+    </div>
+  </div>;
+}
+
+/* ─── MAIN APP ─────────────────────────────────────────────────────────────── */
+const INITIAL_DATA={projects:[],allies:[]};
+function App(){
+  const [data,setData]=useState(()=>loadData()||INITIAL_DATA);
+  const [view,setView]=useState("home");
+  const [params,setParams]=useState({});
+  const [analyzing,setAnalyzing]=useState(false);
+  const [anaError,setAnaError]=useState(null);
+
+  // Persist to localStorage whenever data changes
+  useEffect(()=>{saveData(data);},[data]);
+
+  const nav=(v,p={})=>{setView(v);setParams(p);window.scrollTo&&window.scrollTo(0,0);};
+
+  const saveProject=async(projData)=>{
+    const isNew=!projData.id||!data.projects.find(p=>p.id===projData.id);
+    const id=projData.id||Date.now();
+    const now=new Date().toISOString();
+    const proj={...projData,id,createdAt:projData.createdAt||now,updatedAt:now};
+    setData(d=>({...d,projects:isNew?[proj,...d.projects]:d.projects.map(p=>p.id===id?proj:p)}));
+    setAnalyzing(true);setAnaError(null);nav("analyzing");
+    try{
+      const analysis=await aiAnalyze(projData);
+      const finalMad=analysis.nivelMad||projData.estado_mad||1;
+      const finalProj={...proj,analysis,estado_mad:finalMad};
+      setData(d=>({...d,projects:isNew?d.projects.map(p=>p.id===id?finalProj:p):d.projects.map(p=>p.id===id?finalProj:p)}));
+      nav("detail",{id});
+    }catch(e){setAnaError("Error en el análisis: "+e.message);nav("banco");}
+    setAnalyzing(false);
+  };
+
+  const updateProject=(updated)=>{
+    setData(d=>({...d,projects:d.projects.map(p=>p.id===updated.id?{...updated,updatedAt:new Date().toISOString()}:p)}));
+  };
+
+  const deleteProject=(id)=>{
+    setData(d=>({...d,projects:d.projects.filter(p=>p.id!==id)}));
+  };
+
+  const saveAlly=(ally)=>{
+    const isNew=!data.allies.find(a=>a.id===ally.id);
+    setData(d=>({...d,allies:isNew?[ally,...d.allies]:d.allies.map(a=>a.id===ally.id?ally:a)}));
+  };
+
+  const deleteAlly=(id)=>{
+    setData(d=>({...d,allies:d.allies.filter(a=>a.id!==id)}));
+  };
+
+  const NAV=[
+    {id:"home",i:"⌂",l:"Inicio"},
+    {id:"banco",i:"📁",l:"Banco de proyectos",cnt:data.projects.length},
+    {sep:true},
+    {id:"caso",i:"💧",l:"Caso de referencia",ref:true},
+    {sep:true},
+    {id:"lineamientos",i:"📖",l:"Lineamientos coop."},
+    {id:"pr042",i:"📋",l:"PR 042",reserved:true},
+    {sep:true},
+    {id:"aliados",i:"🤝",l:"Aliados y oportunidades",cnt:data.allies.length},
+    {id:"comunicacion",i:"📣",l:"Comunicación en inglés"},
+    {id:"voz",i:"🗣",l:"Voz del donante"},
+    {sep:true},
+    {id:"ia",i:"🤖",l:"IA responsable"},
+  ];
+
+  const TITLES={home:"Inicio",banco:"Banco de proyectos",caso:"Caso de referencia",lineamientos:"Lineamientos",pr042:"PR 042",aliados:"Aliados y oportunidades",comunicacion:"Comunicación en inglés",voz:"Voz del donante",ia:"IA responsable",detail:"Detalle del proyecto","new-project":"Registrar proyecto","edit-project":"Editar proyecto",analyzing:"Analizando..."};
+
+  const currentProj=data.projects.find(p=>p.id===params.id);
+
+  return(
+    <div className="app">
+      {/* Sidebar */}
+      <nav className="sidebar">
+        <div className="sb-logo">
+          <div style={{display:"flex",gap:9,alignItems:"center",marginBottom:11}}>
+            <div className="sb-logomark">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="white" strokeWidth="1.5"/><path d="M7 16Q12 7 17 16" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/><circle cx="12" cy="16" r="2.5" fill="white"/></svg>
+            </div>
+            <div><div className="sb-name">Fundación Grupo EPM</div><div className="sb-sub">Cooperación internacional</div></div>
+          </div>
+          <div className="sb-version">Activar Cooperación v5</div>
+        </div>
+        <div style={{padding:"10px 8px",flex:1,overflowY:"auto"}}>
+          {NAV.map((item,i)=>{
+            if(item.sep)return <div key={i} className="sb-sep"/>;
+            const isActive=view===item.id||(item.id==="banco"&&(view==="detail"||view==="new-project"||view==="edit-project"||view==="analyzing"));
+            return(
+              <button key={item.id} className={`sb-item ${isActive?"active":""}`} onClick={()=>nav(item.id)}>
+                <span className="sb-ico">{item.i}</span>
+                <span className="sb-lbl">{item.l}</span>
+                {item.ref&&<span className="sb-tag">REF</span>}
+                {item.reserved&&<span className="sb-tag" style={{background:"rgba(184,102,10,.18)",color:"rgba(184,102,10,.9)"}}>042</span>}
+                {item.cnt>0&&<span className="sb-cnt">{item.cnt}</span>}
+              </button>);
+          })}
+          <div className="sb-sep"/>
+          <button className="sb-item" style={{background:"rgba(0,165,83,.12)",borderRadius:"var(--r6)"}} onClick={()=>nav("new-project",{doorType:"existing"})}>
+            <span className="sb-ico" style={{color:"#5dda8a"}}>+</span>
+            <span className="sb-lbl" style={{color:"#5dda8a",fontWeight:700}}>Registrar proyecto</span>
+          </button>
+        </div>
+        <div className="sb-bottom"><p>Sistema de orientación y fortalecimiento. Los datos se guardan automáticamente en tu navegador. No reemplaza el criterio técnico de los equipos responsables.</p></div>
+      </nav>
+
+      {/* Main area */}
+      <div className="main">
+        <div className="topbar">
+          <div>
+            <div className="tb-title">{TITLES[view]||"—"}</div>
+          </div>
+          <div className="tb-right">
+            {view!=="new-project"&&view!=="edit-project"&&<button className="btn btn-primary btn-sm" onClick={()=>nav("new-project",{doorType:"existing"})}>+ Registrar proyecto</button>}
+            <div style={{fontSize:11,color:"#bbb",display:"flex",alignItems:"center",gap:4}}>
+              <div style={{width:7,height:7,borderRadius:"50%",background:"#22c55e"}}/>
+              {data.projects.length} proyecto{data.projects.length!==1?"s":" guardado"}
+            </div>
+          </div>
+        </div>
+        <div className="page-body">
+          {view==="home"&&<HomeView onNav={nav} projects={data.projects} allies={data.allies}/>}
+          {view==="banco"&&<BancoView projects={data.projects} onNav={nav} onNew={()=>nav("new-project",{doorType:"existing"})} onEdit={(id)=>nav("edit-project",{id})} onDelete={deleteProject}/>}
+          {view==="new-project"&&<ProjectForm project={{...EMPTY_PROJ}} onSave={saveProject} onBack={()=>nav("banco")} isNew={true}/>}
+          {view==="edit-project"&&currentProj&&<ProjectForm project={currentProj} onSave={saveProject} onBack={()=>nav("detail",{id:params.id})} isNew={false}/>}
+          {view==="detail"&&currentProj&&<ProjectDetail project={currentProj} onBack={()=>nav("banco")} onEdit={()=>nav("edit-project",{id:params.id})} onRefresh={updateProject}/>}
+          {view==="analyzing"&&<div style={{textAlign:"center",padding:"80px 20px"}}>
+            <div style={{width:70,height:70,background:"var(--g4)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><div className="spin-g" style={{width:30,height:30,borderWidth:3}}/></div>
+            <div style={{fontFamily:"'Syne',sans-serif",fontSize:21,fontWeight:800,marginBottom:10}}>Analizando el proyecto</div>
+            <p style={{fontSize:13.5,color:"#888",maxWidth:420,margin:"0 auto",lineHeight:1.75}}>El sistema revisa la información, identifica vacíos críticos y prepara el diagnóstico completo. Entre 20 y 40 segundos.</p>
+            {anaError&&<div className="alert alert-r" style={{marginTop:20,textAlign:"left",maxWidth:500,margin:"20px auto 0"}}><span>⚠</span><div>{anaError}</div></div>}
+          </div>}
+          {view==="caso"&&<CasoRef/>}
+          {view==="lineamientos"&&<LineamientosView/>}
+          {view==="pr042"&&<PR042View/>}
+          {view==="aliados"&&<AliadosView allies={data.allies} onSaveAlly={saveAlly} onDeleteAlly={deleteAlly}/>}
+          {view==="comunicacion"&&<ComunicacionView/>}
+          {view==="voz"&&<VozView/>}
+          {view==="ia"&&<IAView/>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
