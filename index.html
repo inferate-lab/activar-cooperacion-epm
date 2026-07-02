@@ -235,6 +235,78 @@ const EMPTY_ALLY={id:null,nombre:"",pais:"",tipo:"",interes:"",recursos:"",proye
 const DIM_L={claridad_problema:"Claridad del problema",claridad_objetivo:"Claridad del objetivo",coherencia:"Coherencia lógica",poblacion:"Definición de población",territorio:"Claridad territorial",datos:"Existencia de datos",evidencia:"Evidencia de resultados",tdc:"Teoría del cambio",indicadores:"Indicadores definidos",linea_base:"Línea base disponible",impacto:"Medición de impacto",comunicacion:"Soporte comunicacional"};
 
 /* ─── AI ─────────────────────────────────────────────────────────────────── */
+
+// ─── API KEY MANAGEMENT ─────────────────────────────────────────────────────
+const API_KEY_LS = "epm_claude_key";
+function getApiKey(){return localStorage.getItem(API_KEY_LS)||"";}
+function setApiKey(k){localStorage.setItem(API_KEY_LS,k);}
+
+async function callClaude(prompt, max=3000){
+  const key = getApiKey();
+  if(!key) throw new Error("NO_KEY");
+  const r = await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key": key,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true"
+    },
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:max,messages:[{role:"user",content:prompt}]})
+  });
+  const d=await r.json();
+  if(d.error) throw new Error(d.error.message||"Error API");
+  return d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim();
+}
+
+async function aiAssist(project, chatHistory, userMsg){
+  const hist = chatHistory.map(m=>`${m.role==="user"?"Usuario":"Asistente"}: ${m.content}`).join("\n");
+  return await callClaude(`Eres el asistente de cambios de Activar Cooperación, plataforma institucional de la Fundación Grupo EPM para cooperación internacional.
+
+Proyecto actual: ${project.nombre||"Sin nombre"}
+Línea: ${(LINEAS.find(l=>l.id===project.linea)||{l:"Sin línea"}).l}
+Problema: ${project.problema||"No cargado"}
+Objetivo: ${project.objetivo||"No cargado"}
+Nivel de preparación: ${project.analysis?.nivelPrep||"No analizado"}/4
+Vacíos principales: ${(project.analysis?.vacios||[]).map(v=>v.tit).slice(0,3).join(", ")||"No analizados"}
+
+Historial del chat:
+${hist||"(Inicio de conversación)"}
+
+Nuevo mensaje: ${userMsg}
+
+Responde en español, de forma concisa y orientada a mejorar el proyecto para cooperación. Máximo 4 párrafos. Si el usuario pide recomendaciones específicas, sé concreto y accionable.`, 1500);
+}
+
+async function aiROI(p){
+  return await callClaude(`Evalúa el potencial de ROI social y valor social de este proyecto para Fundación Grupo EPM.
+Nombre: ${p.nombre}|Línea: ${(LINEAS.find(l=>l.id===p.linea)||{l:""}).l}
+Problema: ${p.problema}|Objetivo: ${p.objetivo}
+Benef directos: ${p.benef_dir||p.bd||"No cargados"}|Indirectos: ${p.benef_ind||p.bi||"No cargados"}
+Presupuesto: ${p.presupuesto||p.ppto||"No cargado"}
+Evidencia: ${p.tieneEvi||p.tieneEvidencia?p.evidencia||p.evi:"No cargada"}
+Indicadores: ${p.tieneInd||p.tieneIndicadores?p.indicadores||p.ind:"No cargados"}
+
+JSON sin markdown:
+{"clasificacion":"no_estimable","titulo":"","descripcion":"","condiciones":{"cumplidas":[],"faltantes":[]},"insumos_necesarios":[""],"aproximacion_cualitativa":"","metodologia_sugerida":"","proximos_pasos":[""]}
+clasificacion: no_estimable|estimacion_posible|requiere_validacion|listo_analisis_especializado`, 1800);
+}
+
+async function aiSearchProjects(projects, query){
+  if(!projects.length) return [];
+  const list = projects.map((p,i)=>(`${i}. ${p.nombre}|${(LINEAS.find(l=>l.id===p.linea)||{l:""}).l}|${p.area||""}|${p.problema?.slice(0,80)||""}|${p.objetivo?.slice(0,80)||""}`)).join("\n");
+  const result = await callClaude(`Busca en esta lista de proyectos cuáles son más relevantes para la consulta del usuario. Devuelve solo los índices (números) de los proyectos relevantes, separados por comas. Si ninguno es relevante, devuelve "ninguno".
+
+Proyectos:
+${list}
+
+Consulta del usuario: "${query}"
+
+Responde SOLO con los números de índice separados por comas, sin texto adicional. Ejemplo: "0,2,5" o "ninguno"`, 200);
+  if(result.trim()==="ninguno") return [];
+  return result.split(",").map(s=>parseInt(s.trim())).filter(n=>!isNaN(n)&&n<projects.length);
+}
+
 async function aiAnalyze(p){
   const linea=LINEAS.find(l=>l.id===p.linea)?.l||p.linea;
   const prompt=`Eres especialista en cooperación internacional para la Fundación Grupo EPM. Analiza este proyecto. Usa lenguaje claro para no expertos.
@@ -255,9 +327,7 @@ Responde SOLO JSON sin markdown:
 {"sintesis":"3 oraciones institucionales","lecturaEst":"Potencial y valor real para cooperación","nivelMad":1,"matrizAfirm":[{"afirmacion":"","ok":true,"nota":""}],"diag":{"claridad_problema":{"n":1,"txt":""},"claridad_objetivo":{"n":1,"txt":""},"coherencia":{"n":1,"txt":""},"poblacion":{"n":1,"txt":""},"territorio":{"n":1,"txt":""},"datos":{"n":1,"txt":""},"evidencia":{"n":1,"txt":""},"tdc":{"n":1,"txt":""},"indicadores":{"n":1,"txt":""},"linea_base":{"n":1,"txt":""},"impacto":{"n":1,"txt":""},"comunicacion":{"n":1,"txt":""}},"vacios":[{"cat":"Evidencia","tipo":"critico","titulo":"","desc":"","accion":"","quien":""}],"recAhora":[{"prioridad":"inmediata","accion":"","para_que":"","resp":""}],"infoRecopilar":[{"dim":"","queFalta":"","como":"","urgencia":"alta"}],"estadoTC":{"ok":false,"presentes":[],"faltantes":[],"rec":""},"estadoROI":{"cls":"no_estimable","msg":"","faltan":[]},"rutaCoop":{"cls":"requiere_revision","razon":"","alerta":""},"nivelPrep":1,"pasos":[{"n":1,"titulo":"","desc":"","area":""}]}
 
 nivelMad 1-5. nivelPrep 1-4. n dimensiones 1=débil,2=parcial,3=sólido. matrizAfirm 3-5. vacios 4-8. recAhora 4-7. infoRecopilar 3-5. pasos 4-6.`;
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3500,messages:[{role:"user",content:prompt}]})});
-  const d=await r.json();
-  return JSON.parse(d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+  return JSON.parse(await callClaude(prompt, 3500));
 }
 
 async function aiTDC(project,answers){
@@ -275,9 +345,7 @@ ${Object.entries(answers).map(([k,v])=>`${k}: ${v||"[Sin respuesta]"}`).join("\n
 JSON sin markdown:
 {"aviso":"MODELACIÓN PRELIMINAR. No constituye TdC final. Requiere revisión con planeación.","impacto":{"txt":"","ok":true,"notas":""},"sujeto":{"txt":"","ok":true},"resultados":[{"n":1,"txt":"","ok":true,"notas":""}],"productos":[{"n":1,"txt":"","ok":true}],"actividades":[{"bloque":"","items":[""]}],"supuestos":[""],"riesgos":[""],"indicadores":{"productos":[{"ind":"","unidad":""}],"impacto":{"ind":"","notas":""}},"calidad":{"nivel":1,"fortalezas":[""],"vacios":[""],"avisos":[""],"recs":[{"p":"alta","txt":""}]},"narrada":""}
 calidad.nivel 1=muy fragmentada,2=base incompleta,3=coherente con vacíos,4=sólida requiere validación.`;
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
-  const d=await r.json();
-  return JSON.parse(d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+  return JSON.parse(await callClaude(prompt, 3000));
 }
 
 async function aiPerfil(project){
@@ -292,9 +360,7 @@ Indicadores: ${project.indicadores||"No definidos"}
 
 JSON sin markdown:
 {"resumenEjecutivo":"Párrafo de 4-5 oraciones técnicas e institucionales","descripcionTecnica":"Descripción técnica del proyecto para cooperantes (3-4 oraciones)","problema":"Enunciado técnico del problema en 2-3 oraciones","solucion":"Descripción de la solución propuesta en 2-3 oraciones","resultadosEsperados":["Resultado 1 concreto y verificable","Resultado 2","Resultado 3"],"ods":["ODS relevante 1 con meta","ODS relevante 2"],"fortalezas":["Fortaleza 1 del proyecto","Fortaleza 2"],"brechas":["Brecha 1 que limita la presentación a cooperación","Brecha 2"],"narrativaEN":"Executive summary in English (3-4 sentences, institutional language)"}`;
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
-  const d=await r.json();
-  return JSON.parse(d.content.map(i=>i.text||"").join("").replace(/```json|```/g,"").trim());
+  return JSON.parse(await callClaude(prompt, 2000));
 }
 
 /* ─── UI Components ──────────────────────────────────────────────────────── */
@@ -549,7 +615,7 @@ function ProjectForm({project,onSave,onBack,isNew}){
 }
 
 /* DETALLE PROYECTO */
-function ProjectDetail({project,onBack,onEdit,onRefresh}){
+function ProjectDetail({project,onBack,onEdit,onRefresh,onOpenAssist}){
   const [tab,setTab]=useState(0);
   const [showTDC,setShowTDC]=useState(false);
   const [tdcAnswers,setTDCAnswers]=useState({});
@@ -558,7 +624,7 @@ function ProjectDetail({project,onBack,onEdit,onRefresh}){
   const [generatingPerfil,setGeneratingPerfil]=useState(false);
   const [perfilResult,setPerfilResult]=useState(null);
   const a=project.analysis;
-  const TABS=["Diagnóstico","Vacíos y acciones","Qué recopilar","TdC preliminar","Perfil cooperación","Próximos pasos"];
+  const TABS=["Diagnóstico","Vacíos y acciones","Qué recopilar","TdC preliminar","Perfil coop.","ROI y valor social","Próximos pasos"];
   if(!project.nombre)return(<div><button className="btn btn-ghost btn-sm" onClick={onBack}>← Volver</button><div className="empty-state"><div className="empty-icon">⚠️</div><div className="empty-title">Proyecto no encontrado</div></div></div>);
   return(
     <div>
@@ -577,6 +643,7 @@ function ProjectDetail({project,onBack,onEdit,onRefresh}){
         <div style={{display:"flex",gap:7,alignItems:"center"}}>
           {a&&<MatRing n={a.nivelPrep||1}/>}
           <button className="btn btn-secondary btn-sm" onClick={onEdit}>✎ Editar</button>
+          <button className="btn btn-primary btn-sm" onClick={()=>onOpenAssist&&onOpenAssist(project)}>🤖 Asistente IA</button>
         </div>
       </div>
 
@@ -746,7 +813,9 @@ function ProjectDetail({project,onBack,onEdit,onRefresh}){
             </div>}
           </div>}
 
-          {tab===5&&<div>
+          {tab===5&&<ROIModule project={project}/>}
+
+          {tab===6&&<div>
             <div className="slabel">Plan de próximos pasos</div>
             {(a.pasos||[]).map((p,i)=>(
               <div key={i} style={{display:"flex",gap:10,padding:"10px 0",borderBottom:"1px solid var(--border2)"}}>
@@ -1013,6 +1082,9 @@ function IAView(){
 const INITIAL_DATA={projects:[],allies:[]};
 function App(){
   const [data,setData]=useState(()=>loadData()||INITIAL_DATA);
+  const [apiKeySet,setApiKeySet]=useState(()=>!!getApiKey());
+  const [showAssist,setShowAssist]=useState(false);
+  const [assistProject,setAssistProject]=useState(null);
   const [view,setView]=useState("home");
   const [params,setParams]=useState({});
   const [analyzing,setAnalyzing]=useState(false);
@@ -1071,6 +1143,8 @@ function App(){
     {id:"voz",i:"🗣",l:"Voz del donante"},
     {sep:true},
     {id:"ia",i:"🤖",l:"IA responsable"},
+    {sep:true},
+    {id:"settings",i:"⚙",l:"Configuración IA"},
   ];
 
   const TITLES={home:"Inicio",banco:"Banco de proyectos",caso:"Caso de referencia",lineamientos:"Lineamientos",pr042:"PR 042",aliados:"Aliados y oportunidades",comunicacion:"Comunicación en inglés",voz:"Voz del donante",ia:"IA responsable",detail:"Detalle del proyecto","new-project":"Registrar proyecto","edit-project":"Editar proyecto",analyzing:"Analizando..."};
@@ -1080,6 +1154,7 @@ function App(){
   return(
     <div className="app">
       {/* Sidebar */}
+      {!apiKeySet&&<ApiKeyModal onSet={()=>setApiKeySet(true)}/>}
       <nav className="sidebar">
         <div className="sb-logo">
           <div style={{display:"flex",gap:9,alignItems:"center",marginBottom:11}}>
@@ -1131,7 +1206,7 @@ function App(){
           {view==="banco"&&<BancoView projects={data.projects} onNav={nav} onNew={()=>nav("new-project",{doorType:"existing"})} onEdit={(id)=>nav("edit-project",{id})} onDelete={deleteProject}/>}
           {view==="new-project"&&<ProjectForm project={{...EMPTY_PROJ}} onSave={saveProject} onBack={()=>nav("banco")} isNew={true}/>}
           {view==="edit-project"&&currentProj&&<ProjectForm project={currentProj} onSave={saveProject} onBack={()=>nav("detail",{id:params.id})} isNew={false}/>}
-          {view==="detail"&&currentProj&&<ProjectDetail project={currentProj} onBack={()=>nav("banco")} onEdit={()=>nav("edit-project",{id:params.id})} onRefresh={updateProject}/>}
+          {view==="detail"&&currentProj&&<ProjectDetail project={currentProj} onBack={()=>nav("banco")} onEdit={()=>nav("edit-project",{id:params.id})} onRefresh={updateProject} onOpenAssist={(p)=>{setAssistProject(p);setShowAssist(true);}}/>}
           {view==="analyzing"&&<div style={{textAlign:"center",padding:"80px 20px"}}>
             <div style={{width:70,height:70,background:"var(--g4)",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px"}}><div className="spin-g" style={{width:30,height:30,borderWidth:3}}/></div>
             <div style={{fontFamily:"'Syne',sans-serif",fontSize:21,fontWeight:800,marginBottom:10}}>Analizando el proyecto</div>
@@ -1145,7 +1220,246 @@ function App(){
           {view==="comunicacion"&&<ComunicacionView/>}
           {view==="voz"&&<VozView/>}
           {view==="ia"&&<IAView/>}
+          {view==="settings"&&<SettingsView onBack={()=>nav("home")}/>}
+          {showAssist&&assistProject&&<AssistPanel project={assistProject} open={showAssist} onClose={()=>{setShowAssist(false);setAssistProject(null);}}/>}
         </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ─── API KEY SETUP MODAL ─────────────────────────────────────────────────────
+function ApiKeyModal({onSet}){
+  const [key,setKey]=useState("");
+  const [testing,setTesting]=useState(false);
+  const [err,setErr]=useState("");
+  const test=async()=>{
+    if(!key.trim()||!key.startsWith("sk-ant-")){setErr("La clave debe comenzar con 'sk-ant-'");return;}
+    setTesting(true);setErr("");
+    try{
+      setApiKey(key.trim());
+      await callClaude("Responde solo: OK",50);
+      onSet();
+    }catch(e){
+      setErr("Clave inválida o sin conexión: "+e.message);
+      localStorage.removeItem("epm_claude_key");
+    }
+    setTesting(false);
+  };
+  return(
+    <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.6)",zIndex:999,display:"flex",alignItems:"center",justifyContent:"center",padding:20,backdropFilter:"blur(4px)"}}>
+      <div style={{background:"#fff",borderRadius:"var(--rlg)",padding:"32px 36px",maxWidth:460,width:"100%",boxShadow:"0 24px 64px rgba(0,0,0,.2)"}}>
+        <div style={{width:52,height:52,background:"var(--g4)",borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,marginBottom:18}}>🤖</div>
+        <h2 style={{fontFamily:"'Syne',sans-serif",fontSize:20,fontWeight:800,marginBottom:8,letterSpacing:"-.3px"}}>Activar inteligencia artificial</h2>
+        <p style={{fontSize:13.5,color:"var(--i50)",lineHeight:1.75,marginBottom:22}}>Para usar el análisis IA, la generación de teoría del cambio, el asistente de cambios y el perfil de cooperación, necesitas una clave de API de Anthropic (Claude).</p>
+        <div className="alert a-b" style={{marginBottom:18}}>
+          <span>ℹ</span>
+          <div style={{fontSize:12.5}}>
+            <strong>¿Cómo obtener la clave?</strong><br/>
+            1. Ve a <a href="https://console.anthropic.com" target="_blank" style={{color:"var(--blu)"}}>console.anthropic.com</a><br/>
+            2. Crea una cuenta o inicia sesión<br/>
+            3. Ve a "API Keys" → "Create Key"<br/>
+            4. Copia la clave (comienza con <code>sk-ant-</code>)<br/>
+            La clave se guarda solo en tu navegador, nunca en ningún servidor.
+          </div>
+        </div>
+        <div className="fg">
+          <label className="flabel">Tu clave de API Claude</label>
+          <input type="password" value={key} onChange={e=>setKey(e.target.value)} placeholder="sk-ant-api03-..." onKeyDown={e=>e.key==="Enter"&&test()}/>
+          <div className="fhint">Se guarda solo en este navegador. Puedes cambiarla en cualquier momento en Configuración.</div>
+        </div>
+        {err&&<div className="alert a-r" style={{marginBottom:10}}><span>⚠</span><div style={{fontSize:12.5}}>{err}</div></div>}
+        <div style={{display:"flex",gap:10,marginTop:8}}>
+          <button className="btn btn-ghost" style={{flex:1}} onClick={onSet}>Usar sin IA →</button>
+          <button className="btn btn-primary" style={{flex:2}} disabled={!key.trim()||testing} onClick={test}>
+            {testing?<><div className="spin"/>Verificando...</>:<>✓ Activar IA →</>}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── CHANGE ASSISTANT PANEL ──────────────────────────────────────────────────
+function AssistPanel({project,open,onClose}){
+  const [chat,setChat]=useState([]);
+  const [msg,setMsg]=useState("");
+  const [loading,setLoading]=useState(false);
+  const bottomRef=useRef(null);
+  const hasKey=!!getApiKey();
+  
+  useEffect(()=>{
+    if(open&&chat.length===0){
+      setChat([{role:"ai",content:`Hola. Soy el asistente de cambios para el proyecto **${project?.nombre||"sin nombre"}**. Puedo ayudarte a:\n\n- Identificar qué mejorar en cada sección\n- Sugerir cómo redactar el problema o el objetivo\n- Explicar qué vacíos son más críticos para cooperación\n- Proponer indicadores o actividades específicas\n\n¿En qué te puedo ayudar?`}]);
+    }
+  },[open]);
+  
+  useEffect(()=>{bottomRef.current?.scrollIntoView({behavior:"smooth"});},[chat]);
+  
+  const send=async()=>{
+    if(!msg.trim()||loading)return;
+    const userMsg=msg;setMsg("");
+    setChat(c=>[...c,{role:"user",content:userMsg}]);
+    setLoading(true);
+    try{
+      const resp=await aiAssist(project||{},chat,userMsg);
+      setChat(c=>[...c,{role:"ai",content:resp}]);
+    }catch(e){
+      if(e.message==="NO_KEY"){setChat(c=>[...c,{role:"ai",content:"⚠ Para usar el asistente necesitas configurar tu clave de API Claude. Ve a Configuración (⚙) en la barra lateral."}]);}
+      else{setChat(c=>[...c,{role:"ai",content:"Lo siento, ocurrió un error: "+e.message}]);}
+    }
+    setLoading(false);
+  };
+  
+  if(!open)return null;
+  return(
+    <div style={{position:"fixed",inset:0,zIndex:300,display:"flex",alignItems:"stretch",justifyContent:"flex-end"}}>
+      <div style={{flex:1,background:"rgba(0,0,0,.3)",backdropFilter:"blur(2px)"}} onClick={onClose}/>
+      <div style={{width:380,background:"var(--sur)",display:"flex",flexDirection:"column",boxShadow:"-8px 0 32px rgba(0,0,0,.15)"}}>
+        <div style={{padding:"18px 20px",borderBottom:"1px solid var(--ru)",display:"flex",alignItems:"center",gap:10,background:"linear-gradient(135deg,#002e23,#004030)",flexShrink:0}}>
+          <div style={{width:34,height:34,borderRadius:9,background:"rgba(0,166,83,.3)",border:"1px solid rgba(0,166,83,.4)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🤖</div>
+          <div style={{flex:1}}>
+            <div style={{fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,color:"#fff"}}>Asistente de cambios IA</div>
+            <div style={{fontSize:10.5,color:"rgba(255,255,255,.4)",marginTop:1}}>{project?.nombre?.slice(0,30)||"Sin proyecto"}</div>
+          </div>
+          <button onClick={onClose} style={{background:"rgba(255,255,255,.1)",border:"none",color:"rgba(255,255,255,.6)",width:28,height:28,borderRadius:6,cursor:"pointer",fontSize:14}}>✕</button>
+        </div>
+        {!hasKey&&<div className="alert a-a" style={{margin:14,borderRadius:"var(--r)"}}><span>⚠</span><div style={{fontSize:12}}>Configura tu clave Claude en ⚙ Configuración para activar el asistente.</div></div>}
+        <div style={{flex:1,overflowY:"auto",padding:"14px 16px"}}>
+          {chat.map((m,i)=>(
+            <div key={i} style={{marginBottom:10}}>
+              {m.role==="ai"&&<div style={{fontSize:9,fontWeight:700,letterSpacing:1,textTransform:"uppercase",color:"var(--g2)",marginBottom:4,opacity:.7}}>Asistente IA</div>}
+              <div style={{padding:"10px 12px",borderRadius:"var(--r)",fontSize:12.5,lineHeight:1.7,whiteSpace:"pre-wrap",background:m.role==="ai"?"var(--gp)":"#001f15",color:m.role==="ai"?"var(--gd)":"rgba(255,255,255,.85)",border:m.role==="ai"?"1px solid rgba(0,133,66,.15)":"none",marginLeft:m.role==="user"?20:0}}>{m.content}</div>
+            </div>))}
+          {loading&&<div style={{padding:"10px 12px",borderRadius:"var(--r)",background:"var(--gp)",border:"1px solid rgba(0,133,66,.15)",display:"flex",alignItems:"center",gap:8}}><div className="spin-g" style={{width:14,height:14,borderWidth:2}}/><span style={{fontSize:12,color:"var(--gm)"}}>Pensando...</span></div>}
+          <div ref={bottomRef}/>
+        </div>
+        <div style={{padding:"12px 14px",borderTop:"1px solid var(--ru)",flexShrink:0}}>
+          {[["Qué vacíos son más urgentes?","Analiza vacíos"],["Cómo mejoro el objetivo?","Mejora objetivo"],["Sugiere indicadores","Indicadores"]].map((s,i)=>(
+            <button key={i} onClick={()=>{setMsg(s[0]);}} style={{background:"var(--gs)",border:"1px solid rgba(0,133,66,.2)",color:"var(--gm)",borderRadius:6,padding:"4px 9px",fontSize:11,fontWeight:600,cursor:"pointer",margin:"0 4px 6px 0"}}>{s[1]}</button>))}
+          <textarea value={msg} onChange={e=>setMsg(e.target.value)} placeholder="Escribe tu pregunta o pide una mejora específica..." style={{minHeight:70,marginBottom:8,marginTop:4}} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}}/>
+          <div style={{display:"flex",gap:8}}>
+            <button className="btn btn-ghost btn-sm" style={{flex:1}} onClick={()=>setChat([])}>Limpiar</button>
+            <button className="btn btn-primary btn-sm" style={{flex:2}} disabled={!msg.trim()||loading||!hasKey} onClick={send}>{loading?<><div className="spin"/>...</>:"Enviar →"}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── ROI MODULE ──────────────────────────────────────────────────────────────
+function ROIModule({project}){
+  const [result,setResult]=useState(project?.roiData||null);
+  const [loading,setLoading]=useState(false);
+  const [err,setErr]=useState(null);
+  const cls=result?.clasificacion;
+  const colors={no_estimable:"var(--red)",estimacion_posible:"var(--amber)",requiere_validacion:"var(--blu)",listo_analisis_especializado:"var(--g2)"};
+  const labels={no_estimable:"No estimable todavía",estimacion_posible:"Estimación preliminar posible",requiere_validacion:"Requiere validación técnica",listo_analisis_especializado:"Listo para análisis especializado"};
+  const run=async()=>{
+    setLoading(true);setErr(null);
+    try{const r=await aiROI(project);const parsed=JSON.parse(r);setResult(parsed);}
+    catch(e){if(e.message==="NO_KEY")setErr("Configura tu clave Claude en ⚙ Configuración.");else setErr("Error: "+e.message);}
+    setLoading(false);
+  };
+  return(
+    <div>
+      <div className="alert a-b" style={{marginBottom:14}}><span>ℹ</span><div><strong>Sobre el ROI y valor social:</strong> No puede calcularse automáticamente. Requiere datos verificables de inversión, beneficiarios, cambio observado y duración del efecto. Este módulo evalúa si el proyecto tiene condiciones para construirlo.</div></div>
+      {!result&&!loading&&<button className="btn btn-primary btn-lg" onClick={run}>📊 Evaluar potencial de ROI social</button>}
+      {loading&&<div style={{textAlign:"center",padding:30}}><div className="spin-g" style={{width:28,height:28,borderWidth:3,display:"inline-block"}}/><div style={{fontSize:13,color:"var(--i50)",marginTop:10}}>Evaluando condiciones de ROI...</div></div>}
+      {err&&<div className="alert a-r"><span>⚠</span><div>{err}</div></div>}
+      {result&&<div>
+        <div style={{background:colors[cls]+"15",border:`1.5px solid ${colors[cls]}40`,borderRadius:"var(--rlg)",padding:"16px 18px",display:"flex",gap:14,alignItems:"flex-start",marginBottom:16}}>
+          <div style={{width:54,height:54,borderRadius:"50%",background:colors[cls],display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:22}}>{cls==="no_estimable"?"⛔":cls==="estimacion_posible"?"△":cls==="requiere_validacion"?"🔍":"✓"}</div>
+          <div><div style={{fontFamily:"'Syne',sans-serif",fontSize:15,fontWeight:700,marginBottom:4,color:colors[cls]}}>{labels[cls]||cls}</div><div style={{fontSize:13,color:"var(--i70)",lineHeight:1.7}}>{result.descripcion}</div></div>
+        </div>
+        {result.titulo&&<div style={{fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,marginBottom:8}}>{result.titulo}</div>}
+        {result.aproximacion_cualitativa&&<div style={{fontSize:13.5,color:"var(--i70)",lineHeight:1.8,marginBottom:14}}>{result.aproximacion_cualitativa}</div>}
+        <div className="g2" style={{marginBottom:14}}>
+          {(result.condiciones?.cumplidas||[]).length>0&&<div><div style={{fontSize:10,fontWeight:700,letterSpacing:1.2,textTransform:"uppercase",color:"var(--g2)",marginBottom:8}}>Condiciones cumplidas</div>{result.condiciones.cumplidas.map((x,i)=><div key={i} className="alert a-g" style={{marginBottom:4}}><span>✓</span><div style={{fontSize:12}}>{x}</div></div>)}</div>}
+          {(result.condiciones?.faltantes||[]).length>0&&<div><div style={{fontSize:10,fontWeight:700,letterSpacing:1.2,textTransform:"uppercase",color:"var(--red)",marginBottom:8}}>Condiciones faltantes</div>{result.condiciones.faltantes.map((x,i)=><div key={i} className="alert a-r" style={{marginBottom:4}}><span>△</span><div style={{fontSize:12}}>{x}</div></div>)}</div>}
+        </div>
+        {(result.insumos_necesarios||[]).length>0&&<div style={{marginBottom:14}}><div style={{fontSize:10,fontWeight:700,letterSpacing:1.2,textTransform:"uppercase",color:"var(--amb)",marginBottom:8}}>Insumos necesarios para estimar ROI</div>{result.insumos_necesarios.map((x,i)=><div key={i} className="al a-a" style={{marginBottom:4,padding:"8px 12px",borderRadius:"var(--r)",background:"var(--as)",borderLeft:"3px solid var(--amb)"}}><span>→</span><div style={{fontSize:12}}>{x}</div></div>)}</div>}
+        {result.metodologia_sugerida&&<div style={{background:"var(--sw)",borderRadius:"var(--r)",padding:"12px 15px",marginBottom:14,border:"1px solid var(--ru)"}}><div style={{fontSize:10,fontWeight:700,letterSpacing:1.2,textTransform:"uppercase",color:"var(--i30)",marginBottom:5}}>Metodología sugerida</div><div style={{fontSize:13,color:"var(--i70)",lineHeight:1.7}}>{result.metodologia_sugerida}</div></div>}
+        <button className="btn btn-ghost btn-sm" onClick={()=>setResult(null)}>Reevaluar →</button>
+      </div>}
+    </div>
+  );
+}
+
+// ─── SMART SEARCH ────────────────────────────────────────────────────────────
+function SmartSearch({projects,onSelectProject}){
+  const [q,setQ]=useState("");
+  const [results,setResults]=useState(null);
+  const [searching,setSearching]=useState(false);
+  const hasKey=!!getApiKey();
+  const doSearch=async()=>{
+    if(!q.trim()||!projects.length)return;
+    setSearching(true);
+    try{
+      const indices=await aiSearchProjects(projects,q);
+      setResults(indices.map(i=>projects[i]).filter(Boolean));
+    }catch(e){
+      setResults(projects.filter(p=>p.nombre.toLowerCase().includes(q.toLowerCase())));
+    }
+    setSearching(false);
+  };
+  return(
+    <div style={{background:"var(--sur)",border:"1.5px solid var(--g2)",borderRadius:"var(--r)",padding:"14px 16px",marginBottom:16}}>
+      <div style={{fontSize:10,fontWeight:700,letterSpacing:1.3,textTransform:"uppercase",color:"var(--g2)",marginBottom:8}}>🔍 Búsqueda inteligente IA</div>
+      <div style={{display:"flex",gap:8}}>
+        <input type="text" value={q} onChange={e=>setQ(e.target.value)} placeholder='Ej: "proyectos de agua sin línea base" o "qué proyectos tienen evidencia de impacto"' onKeyDown={e=>e.key==="Enter"&&doSearch()}/>
+        <button className="btn btn-primary btn-sm" disabled={!q.trim()||searching||!hasKey} onClick={doSearch}>{searching?<div className="spin"/>:"Buscar"}</button>
+      </div>
+      {!hasKey&&<div style={{fontSize:11,color:"var(--amb)",marginTop:5}}>Configura tu clave Claude para usar búsqueda semántica.</div>}
+      {results!==null&&<div style={{marginTop:12}}>
+        <div style={{fontSize:11,fontWeight:600,color:"var(--i50)",marginBottom:8}}>{results.length} resultado{results.length!==1?"s":""} para "{q}"</div>
+        {results.length===0?<div style={{fontSize:13,color:"var(--i30)"}}>No se encontraron proyectos relevantes.</div>:
+          results.map(p=><div key={p.id} onClick={()=>onSelectProject(p.id)} style={{display:"flex",alignItems:"center",gap:10,padding:"9px 12px",borderRadius:"var(--r)",background:"var(--sw)",border:"1px solid var(--ru)",marginBottom:5,cursor:"pointer",transition:"all .15s"}} onMouseOver={e=>e.currentTarget.style.borderColor="var(--g2)"} onMouseOut={e=>e.currentTarget.style.borderColor="var(--ru)"}>
+            <div style={{width:8,height:8,borderRadius:"50%",background:"var(--g2)",flexShrink:0}}/>
+            <div style={{flex:1}}><div style={{fontSize:13,fontWeight:700}}>{p.nombre}</div><div style={{fontSize:11,color:"var(--i30)"}}>{(LINEAS.find(l=>l.id===p.linea)||{l:"Sin línea"}).l} · {p.area||"Sin área"}</div></div>
+          </div>)}
+        <button className="btn btn-ghost btn-sm" onClick={()=>{setResults(null);setQ("");}}>Limpiar</button>
+      </div>}
+    </div>
+  );
+}
+
+// ─── SETTINGS VIEW ──────────────────────────────────────────────────────────
+function SettingsView({onBack}){
+  const [key,setKey]=useState(getApiKey());
+  const [saved2,setSaved2]=useState(false);
+  const [testing,setTesting]=useState(false);
+  const [testResult,setTestResult]=useState(null);
+  const save=()=>{setApiKey(key.trim());setSaved2(true);setTimeout(()=>setSaved2(false),2000);};
+  const test=async()=>{
+    setTesting(true);setTestResult(null);
+    try{const r=await callClaude("Responde solo: Clave válida",50);setTestResult({ok:true,msg:r});}
+    catch(e){setTestResult({ok:false,msg:e.message});}
+    setTesting(false);
+  };
+  return(
+    <div>
+      <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:20}}>
+        <button className="btn btn-ghost btn-sm" onClick={onBack}>← Volver</button>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:18,fontWeight:700}}>Configuración de IA</div>
+      </div>
+      <div className="card" style={{marginBottom:14}}>
+        <div className="card-title">Clave de API Claude (Anthropic)</div>
+        <div className="card-desc">Tu clave se guarda solo en este navegador. Nunca se envía a ningún servidor externo.</div>
+        <div className="fg"><label className="flabel">Clave de API</label><input type="password" value={key} onChange={e=>setKey(e.target.value)} placeholder="sk-ant-api03-..."/><div className="fhint">Ve a <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a> para obtener una clave.</div></div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn btn-primary" onClick={save} disabled={!key.trim()}>{saved2?"✓ Guardado":"Guardar clave"}</button>
+          <button className="btn btn-secondary" onClick={test} disabled={!key.trim()||testing}>{testing?<><div className="spin-g" style={{display:"inline-block",width:14,height:14}}/>Verificando...</>:"Verificar conexión"}</button>
+          {key&&<button className="btn btn-ghost" onClick={()=>{setKey("");setApiKey("");}}>Eliminar clave</button>}
+        </div>
+        {testResult&&<div className={`alert ${testResult.ok?"a-g":"a-r"}`} style={{marginTop:10}}><span>{testResult.ok?"✓":"⚠"}</span><div>{testResult.ok?"Clave válida. La IA está activa y funcionando.":"Error de conexión: "+testResult.msg}</div></div>}
+      </div>
+      <div className="card">
+        <div className="card-title">¿Qué funciones de IA están disponibles?</div>
+        <div className="card-desc">Con una clave válida, tienes acceso a:</div>
+        {[["🔍","Análisis completo de proyectos en 12 dimensiones con diagnóstico institucional."],["🔄","Constructor guiado de teoría del cambio preliminar."],["📊","Evaluador de potencial de ROI y valor social."],["🚀","Generador de perfil de cooperación con narrativa en inglés."],["🤖","Asistente de cambios personalizado por proyecto (chat)."],["🔎","Búsqueda semántica inteligente en el banco de proyectos."]].map((x,i)=><div key={i} className="alert a-g" style={{marginBottom:5}}><span>{x[0]}</span><div style={{fontSize:12.5}}>{x[1]}</div></div>)}
       </div>
     </div>
   );
